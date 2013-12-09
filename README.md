@@ -15,7 +15,7 @@ $ npm install mongo-oplog
 
 ``` javascript
 var mongooplog = require('../lib');
-var oplog = mongooplog().start({ ns: 'test.posts' });
+var oplog = mongooplog().watch({ ns: 'test.posts' });
 
 oplog.on('data', function (data) {
   console.log(data);
