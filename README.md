@@ -14,7 +14,7 @@ $ npm install mongo-oplog
 ## Usage
 
 ``` javascript
-var MongoOplog = require('../lib');
+var MongoOplog = require('mongo-oplog');
 var oplog = MongoOplog('mongodb://127.0.0.1:27017/local', 'test.posts').tail();
 
 oplog.on('op', function (data) {
@@ -46,6 +46,21 @@ oplog.stop(function () {
 });
 ```
 
+## API
+
+### MongoOplog(uri, [[ns], [options]])
+
+* `uri`: Valid MongoDB uri or a MongoDB server instance.
+* `ns`: Namespace for emitting, namespace format is `database` + `.` + `collection` eg.(`test.posts`).
+* `options` MongoDB onnection options.
+
+### tail()
+
+Start tailing.
+
+### stop([fn])
+
+Stop tailing and disconnect from server.
 
 ## TODO
 
