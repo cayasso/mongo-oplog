@@ -56,6 +56,14 @@ oplog.stop(function () {
 
 ### tail()
 
+
+### events
+
+* `op`: all bellow operations
+* `insert`: document insert
+* `update`: document update
+* `delete`: document delete
+
 Start tailing.
 
 ### stop([fn])
