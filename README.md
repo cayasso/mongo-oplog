@@ -56,6 +56,11 @@ oplog.stop(function () {
 
 ### tail()
 
+Start tailing.
+
+### stop([fn])
+
+Stop tailing and disconnect from server.
 
 ### events
 
@@ -63,12 +68,6 @@ oplog.stop(function () {
 * `insert`: document insert
 * `update`: document update
 * `delete`: document delete
-
-Start tailing.
-
-### stop([fn])
-
-Stop tailing and disconnect from server.
 
 ## TODO
 
