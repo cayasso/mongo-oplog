@@ -1,6 +1,5 @@
 # Mongo Oplog
 
-[![Build Status](https://travis-ci.org/cayasso/mongo-oplog.png?branch=master)](https://travis-ci.org/cayasso/mongo-oplog)
 [![NPM version](https://badge.fury.io/js/mongo-oplog.png)](http://badge.fury.io/js/mongo-oplog)
 
 Listening to MongoDB live changes using oplog.
@@ -75,7 +74,7 @@ Stop tailing and disconnect from server.
 
 Configure MongoDB for ac active oplog:
 
-Start with:
+Start MongoDB with:
 
 ``` bash
 $ mongodb --repSet test
