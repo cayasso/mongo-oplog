@@ -14,23 +14,23 @@ $ npm install mongo-oplog
 ## Usage
 
 ``` javascript
-var mongooplog = require('../lib');
-var oplog = mongooplog().watch({ ns: 'test.posts' });
+var MongoOplog = require('../lib');
+var oplog = MongoOplog('mongodb://127.0.0.1:27017/local', 'test.posts').tail();
 
-oplog.on('data', function (data) {
+oplog.on('op', function (data) {
   console.log(data);
 });
 
 oplog.on('insert', function (doc) {
-  console.log(doc);
+  console.log(doc.op);
 });
 
 oplog.on('update', function (doc) {
-  console.log(doc);
+  console.log(doc.op);
 });
 
-oplog.on('remove', function (doc) {
-  console.log(doc);
+oplog.on('delete', function (doc) {
+  console.log(doc.op._id);
 });
 
 oplog.on('error', function (error) {
