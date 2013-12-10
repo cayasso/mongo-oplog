@@ -64,12 +64,12 @@ Stop tailing and disconnect from server.
 
 ### events
 
-* `op`: all bellow operations
-* `insert`: document insert
-* `update`: document update
-* `delete`: document delete
-* `end`: cursor stream ended
-* `error`: error
+* `op`: all bellow operations.
+* `insert`: document insert.
+* `update`: document update.
+* `delete`: document delete.
+* `end`: cursor stream ended.
+* `error`: error.
 
 ## TODO
 
