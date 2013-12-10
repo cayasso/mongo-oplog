@@ -71,10 +71,6 @@ Stop tailing and disconnect from server.
 * `end`: Cursor stream ended.
 * `error`: Error.
 
-## TODO
-
-Add tests.
-
 ## Run tests
 
 Configure MongoDB for ac active oplog:
@@ -92,7 +88,7 @@ var config = {_id: "test", members: [{_id: 0, host: "127.0.0.1:27017"}]}
 rs.initiate(config)
 ```
 
-Once configuration is initiated then you can run the tests:
+Once configuration is initiated then you can run the test:
 
 ``` bash
 $ make test
