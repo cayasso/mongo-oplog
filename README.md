@@ -77,6 +77,23 @@ Add tests.
 
 ## Run tests
 
+Configure MongoDB for ac active oplog:
+
+Start with:
+
+``` bash
+$ mongodb --repSet test
+```
+
+Start a `mongo` shell and configure mongo as follows:
+
+```mongo
+var config = {_id: "test", members: [{_id: 0, host: "127.0.0.1:27017"}]}
+rs.initiate(config)
+```
+
+Once configuration is initiated then you can run the tests:
+
 ``` bash
 $ make test
 ```

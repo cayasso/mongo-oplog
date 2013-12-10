@@ -27,6 +27,7 @@
   },
   "devDependencies": {
     "mocha": "*",
-    "expect.js": "*"
+    "expect.js": "*",
+    "mongoose": "3.6.20"
   }
 }
