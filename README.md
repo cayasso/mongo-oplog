@@ -68,6 +68,8 @@ Stop tailing and disconnect from server.
 * `insert`: document insert
 * `update`: document update
 * `delete`: document delete
+* `end`: cursor stream ended
+* `error`: error
 
 ## TODO
 
