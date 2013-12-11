@@ -53,22 +53,64 @@ oplog.stop(function () {
 * `ns`: Namespace for emitting, namespace format is `database` + `.` + `collection` eg.(`test.posts`).
 * `options` MongoDB onnection options.
 
-### tail()
+### tail([fn])
 
 Start tailing.
+
+```javascript
+oplog.tail(function(){
+  console.log('tailing started');
+})
+```
 
 ### stop([fn])
 
 Stop tailing and disconnect from server.
 
+```javascript
+oplog.stop(function(){
+  console.log('tailing stopped');
+})
+```
+
+### filter([ns])
+
+Filter by namespace.
+
+```javascript
+oplog.filter('*.posts')
+oplog.tail();
+```
+
+### filter.ns(ns)
+
+Filter by namespace.
+
+```javascript
+oplog.filter().ns('*.posts');
+
+// or
+oplog.filter().ns('test.*');
+
+// or
+oplog.filter().ns('test.posts');
+
+// start tailing
+oplog.tail();
+```
+
+filter by namespace.
+
 ### events
 
-* `op`: All bellow operations.
-* `insert`: Document insert.
-* `update`: Document update.
-* `delete`: Document delete.
-* `end`: Cursor stream ended.
-* `error`: Error.
+Events supported by `oplog` and `filter`;
+
+* `op`: All bellow operations (oplog/filter).
+* `insert`: Document insert (oplog/filter).
+* `update`: Document update (oplog/filter).
+* `delete`: Document delete (oplog/filter).
+* `end`: Cursor stream ended (oplog).
+* `error`: Error (oplog).
 
 ## Run tests
 
