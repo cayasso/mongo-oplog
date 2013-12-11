@@ -111,8 +111,6 @@ oplog.filter()
 oplog.tail();
 ```
 
-filter by namespace.
-
 ### events
 
 Events supported by `oplog` and `filter`;
