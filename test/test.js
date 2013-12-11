@@ -114,8 +114,7 @@ describe('mongo-oplog', function () {
 
   it('should filter by collection', function(done){
     var oplog = MongoOplog();
-    oplog.filter()
-      .col('bs')
+    oplog.filter('*.bs')
       .on('op', function(doc){
         expect(doc.o.n).to.be('L1');
         done();
