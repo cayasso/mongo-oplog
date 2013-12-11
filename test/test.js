@@ -8,21 +8,28 @@ var MongoOplog = require('../')
   , mongoose = require('mongoose')
   , expect = require('expect.js')
   , Schema = mongoose.Schema
-  , PeopleSchema
-  , People
+  , ASchema
+  , BSchema
   , oplog
-  , db;
+  , db
+  , A
+  , B;
+  
 
 describe('mongo-oplog', function () {
 
   before(function (done) {
     mongoose.connect('mongodb://127.0.0.1:27017/test');
-    PeopleSchema = new Schema({
-      name: String,
-      num: Number,
-      test: Boolean
+    ASchema = new Schema({
+      n: String,
+      c: Number
     });
-    People = mongoose.model('People', PeopleSchema);
+    A = mongoose.model('A', ASchema);
+    BSchema = new Schema({
+      n: String,
+      c: Number
+    });
+    B = mongoose.model('B', BSchema);
     mongoose.connection.on('error', function (err) {
       done(err);
     });
@@ -37,11 +44,11 @@ describe('mongo-oplog', function () {
   it('should emit `op` event', function (done) {
     oplog.once('op', function (doc) {
       expect(doc.op).to.be('i');
-      expect(doc.o.name).to.be.eql('JB');
-      expect(doc.o.num).to.be.eql(1);
+      expect(doc.o.n).to.be.eql('JB');
+      expect(doc.o.c).to.be.eql(1);
       done();
     });
-    People.create({ name: 'JB', num: 1 }, function (err) {
+    A.create({ n: 'JB', c: 1 }, function (err) {
       if (err) done(err);
     });
   });
@@ -49,11 +56,11 @@ describe('mongo-oplog', function () {
   it('should emit `insert` event', function (done) {
     oplog.once('insert', function (doc) {
       expect(doc.op).to.be('i');
-      expect(doc.o.name).to.be.eql('ML');
-      expect(doc.o.num).to.be.eql(2);
+      expect(doc.o.n).to.be.eql('ML');
+      expect(doc.o.c).to.be.eql(2);
       done();
     });
-    People.create({ name: 'ML', num: 2 }, function (err) {
+    A.create({ n: 'ML', c: 2 }, function (err) {
       if (err) done(err);
     });
   });
@@ -61,20 +68,20 @@ describe('mongo-oplog', function () {
   it('should emit `update` event', function (done) {
     oplog.once('update', function (doc) {
       expect(doc.op).to.be('u');
-      expect(doc.o.$set.name).to.be.eql('US');
-      expect(doc.o.$set.num).to.be.eql(7);
+      expect(doc.o.$set.n).to.be.eql('US');
+      expect(doc.o.$set.c).to.be.eql(7);
       done();
     });
-    People.create({ name: 'CR', num: 3 }, function (err) {
+    A.create({ n: 'CR', c: 3 }, function (err) {
       if (err) return done(err);
-      People.update({ name: 'CR', num: 3 }, { name: 'US', num: 7 }, function (err) {
+      A.update({ n: 'CR', c: 3 }, { n: 'US', c: 7 }, function (err) {
         if (err) done(err);
       });
     });
   });
 
   it('should emit `delete` event', function (done) {
-    People.create({ name: 'PM', num: 4 }, function (err, doc) {
+    A.create({ n: 'PM', c: 4 }, function (err, doc) {
       if (err) return done(err);
       var id = doc._id;
       oplog.once('delete', function (doc) {
@@ -82,9 +89,19 @@ describe('mongo-oplog', function () {
         expect(doc.o._id).to.be.eql(id);
         done();
       });
-      People.remove({ name: 'PM', num: 4 }, function (err) {
+      A.remove({ n: 'PM', c: 4 }, function (err) {
         if (err) done(err);
       });
+    });
+  });
+
+  it('should emit cursor `end` event', function (done) {
+    var oplog = MongoOplog().tail(function (err, cursor) {
+      if (err) return done(err);
+      cursor.emit('end');
+    });
+    oplog.once('end', function(){
+      done();
     });
   });
 
@@ -95,18 +112,26 @@ describe('mongo-oplog', function () {
     });
   });
 
-  it('should emit cursor `end` event', function (done) {
-    var oplog = MongoOplog().tail(function (err, cursor) {
-      if (err) return done(err);
-      cursor.emit('end');
+  it('should filter by collection', function(done){
+    var oplog = MongoOplog();
+    oplog.filter()
+      .col('bs')
+      .on('op', function(doc){
+        expect(doc.o.n).to.be('L1');
+        done();
+      });
+    oplog.tail(function () {
+      A.create({ n: 'L1' }, function(){});
+      B.create({ n: 'L1' }, function(){});
     });
-    oplog.once('end', done);
   });
 
   after(function (done) {
-    People.remove({}, function () {
-      mongoose.disconnect();
-      done();
+    A.remove({}, function () {
+      B.remove({}, function () {
+        mongoose.disconnect();
+        done();
+      });
     });
   });
 
