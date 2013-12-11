@@ -87,13 +87,25 @@ oplog.tail();
 Filter by namespace.
 
 ```javascript
-oplog.filter().ns('*.posts');
+oplog.filter()
+.ns('*.posts')
+.on('op', function(doc){
+  console.log(doc);
+});
 
 // or
-oplog.filter().ns('test.*');
+oplog.filter()
+.ns('test.*')
+.on('op', function(doc){
+  console.log(doc);
+});
 
 // or
-oplog.filter().ns('test.posts');
+oplog.filter()
+.ns('test.posts');
+.on('op', function(doc){
+  console.log(doc);
+});
 
 // start tailing
 oplog.tail();
