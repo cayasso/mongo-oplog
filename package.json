@@ -27,8 +27,9 @@
     "wildcard": "~0.1.4"
   },
   "devDependencies": {
-    "mocha": "*",
     "expect.js": "*",
-    "mongoose": "3.6.20"
+    "mocha": "*",
+    "mongoose": "3.6.20",
+    "pre-commit": "0.0.9"
   }
 }
