@@ -94,6 +94,18 @@ describe('mongo-oplog', function () {
       });
     });
   });
+  
+  it('should stop returning op if opLog not running', function (done) {
+    oplog.once('op', function (doc) {
+      // we shouldn't receive a doc
+      expect(!doc); 
+      done()
+    });
+    oplog.running = false;
+    A.create({ n: 'HI', c: 5 }, function (err) {
+      if (err) done(err);
+    });
+  });
 
   it('should emit cursor `end` event', function (done) {
     var oplog = MongoOplog().tail(function (err, cursor) {
@@ -104,6 +116,7 @@ describe('mongo-oplog', function () {
       done();
     });
   });
+
 
   it('should emit `error` event', function (done) {
     var oplog = MongoOplog('mongodb://127.0.0.1:8888/local').tail();
