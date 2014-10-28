@@ -96,11 +96,12 @@ describe('mongo-oplog', function () {
   });
   
   it('should stop returning op if opLog not running', function (done) {
-  	oplog.once('op', function (doc) {
+    oplog.once('op', function (doc) {
       // we shouldn't receive a doc
-    	expect(!doc); 
-    	done()
+      expect(!doc); 
+      done()
     });
+    oplog.running = false;
     A.create({ n: 'HI', c: 5 }, function (err) {
       if (err) done(err);
     });
