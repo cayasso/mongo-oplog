@@ -4,7 +4,7 @@
 
 Listening to MongoDB live changes using oplog.
 
-## Instalation
+## Installation
 
 ``` bash
 $ npm install mongo-oplog
