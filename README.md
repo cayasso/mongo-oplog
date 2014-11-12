@@ -129,7 +129,7 @@ Configure MongoDB for ac active oplog:
 Start MongoDB with:
 
 ``` bash
-$ mongodb --repSet test
+$ mongod --replSet test
 ```
 
 Start a `mongo` shell and configure mongo as follows:
@@ -142,6 +142,7 @@ Start a `mongo` shell and configure mongo as follows:
 Once configuration is initiated then you can run the test:
 
 ``` bash
+$ npm install
 $ make test
 ```
 
