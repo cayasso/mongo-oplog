@@ -1,6 +1,6 @@
 {
   "name": "mongo-oplog",
-  "version": "0.1.6",
+  "version": "0.2.0",
   "description": "Watch mongodb oplog in a simple way",
   "author": "Jonathan Brumley <cayasso@gmail.com>",
   "homepage": "https://github.com/cayasso/mongo-oplog",
@@ -18,18 +18,20 @@
     "mongodb",
     "watcher",
     "live",
-    "oplog"
+    "oplog",
+    "cursor"
   ],
   "license": "MIT",
   "dependencies": {
     "debug": "0.7.x",
+    "eventemitter3": "^0.1.6",
+    "mongo-oplog-cursor": "^0.1.1",
     "mongodb": "~1.3.x",
-    "wildcard": "~0.1.4"
+    "thunky": "^0.1.0"
   },
   "devDependencies": {
-    "expect.js": "*",
     "mocha": "*",
-    "mongoose": "3.6.20",
-    "pre-commit": "0.0.9"
+    "pre-commit": "0.0.9",
+    "should": "^4.6.2"
   }
 }
