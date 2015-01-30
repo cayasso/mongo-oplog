@@ -96,9 +96,6 @@ Create and return a filter object.
 ```javascript
 var filter = oplog.filter('*.posts');
 filter.on('op', fn);
-```
-
-// start tailing
 oplog.tail();
 ```
 
