@@ -8,31 +8,28 @@ var MongoOplog = require('../')
   , mongoose = require('mongoose')
   , expect = require('expect.js')
   , Schema = mongoose.Schema
-  , ASchema
-  , BSchema
   , oplog
+  , conn
   , db
   , A
-  , B;
+  , B
+  , C
+  , CA;
   
 
 describe('mongo-oplog', function () {
 
   before(function (done) {
-    mongoose.connect('mongodb://127.0.0.1:27017/test');
-    ASchema = new Schema({
-      n: String,
-      c: Number
-    });
-    A = mongoose.model('A', ASchema);
-    BSchema = new Schema({
-      n: String,
-      c: Number
-    });
-    B = mongoose.model('B', BSchema);
-    mongoose.connection.on('error', function (err) {
-      done(err);
-    });
+    
+    mongoose.connect('mongodb://127.0.0.1:27017/optest');
+    conn = mongoose.connection;
+    conn.on('error', done);
+
+    A  = mongoose.model('A', new Schema({ n: String, c: Number }));
+    B  = mongoose.model('B', new Schema({ n: String, c: Number }));
+    C  = mongoose.model('C', new Schema({ n: String, c: Number }));
+    CA = mongoose.model('CS.A', new Schema({ n: String, c: Number }));
+
     oplog = MongoOplog().tail(done);
   });
 
@@ -138,13 +135,22 @@ describe('mongo-oplog', function () {
     });
   });
 
-  after(function (done) {
-    A.remove({}, function () {
-      B.remove({}, function () {
-        mongoose.disconnect();
-        done();
+  it('should filter exactly by namespace', function(done){
+    var oplog = MongoOplog();
+    oplog.filter('optest.cs')
+      .on('op', function(doc){
+        if ('L1' !== doc.o.n) done('should not throw');
+        else done();
+      });
+    oplog.tail(function () {
+      CA.create({ n: 'L2' }, function(){
+        C.create({ n: 'L1' }, function(){});
       });
     });
+  });
+
+  after(function (done) {
+    conn.db.dropDatabase(done)
   });
 
 });
