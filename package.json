@@ -3,14 +3,14 @@
   "version": "0.2.0",
   "description": "Watch mongodb oplog in a simple way",
   "author": "Jonathan Brumley <cayasso@gmail.com>",
-  "homepage": "https://github.com/cayasso/mongo-oplog",
+  "homepage": "https://github.com/arnaudsj/mongo-oplog",
   "main": "index.js",
   "scripts": {
     "test": "make test"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/cayasso/mongo-oplog.git"
+    "url": "git://github.com/arnaudsj/mongo-oplog.git"
   },
   "keywords": [
     "data",
@@ -25,8 +25,8 @@
   "dependencies": {
     "debug": "0.7.x",
     "eventemitter3": "^0.1.6",
-    "mongo-oplog-cursor": "^0.1.1",
-    "mongodb": "~1.3.x",
+    "mongo-oplog-cursor": "0.1.2",
+    "mongodb": "1.4.29",
     "thunky": "^0.1.0"
   },
   "devDependencies": {
