@@ -10,6 +10,10 @@ Listening to MongoDB live changes using oplog.
 $ npm install mongo-oplog
 ```
 
+## IMPORTANT! Migrating from 0.x to 1.x
+
+[Check the upgrading guide here](https://github.com/cayasso/mongo-oplog/blob/develop/UPGRADE.md)
+
 ## Usage
 
 ``` javascript
