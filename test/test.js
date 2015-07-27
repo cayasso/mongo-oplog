@@ -164,6 +164,29 @@ describe('mongo-oplog', function () {
     });
   });
 
+  it('should filter by the exact namespace', function(done){
+    var cs = db.collection('cs');
+    var css = db.collection('css');
+    var oplog = MongoOplog(conn.oplog);
+
+    var filter = oplog.filter('test.cs');
+
+    filter.on('op', function(doc) {
+      if ('L1' !== doc.o.n) done('should not throw');
+      else done();
+    });
+
+    oplog.tail(function (err) {
+      if (err) return done(err);
+      css.insert({ n: 'L2' }, function(err) {
+        if (err) return done(err);
+        cs.insert({ n: 'L1' }, function(err) {
+          if (err) return done(err);
+        });
+      });
+    });
+  });
+
   it('should filter by namespace in constructor', function (done) {
     var f1 = db.collection('f1');
     var f2 = db.collection('f2');
