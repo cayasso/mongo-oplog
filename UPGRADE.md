@@ -1,6 +1,6 @@
 ## Upgrading from 0.x.x to 1.0.x
 
-### The constructor does no longer support `new`, just call the constructor as a regular function.
+The constructor does no longer support `new`, just call the constructor as a regular function.
 
 Instead of:
 
@@ -14,7 +14,7 @@ use:
 var oplog = MongoOplog(uri);
 ```
 
-### The constructor does no longer support 3 arguments (`uri`, `ns`, `options`)  but only two (`uri`, `options`).
+The constructor does no longer support 3 arguments (`uri`, `ns`, `options`)  but only two (`uri`, `options`).
 
 ```js
 var options = { 
@@ -34,7 +34,7 @@ var options = {
 var oplog = MongoOplog(uri, options);
 ```
 
-### Use `stop` or `destroy`, using `stop` will stop and destroy the tailing cursor and `destroy` will destroy cursor and database connection disconnecting from server.
+Use `stop` or `destroy`, using `stop` will stop and destroy the tailing cursor and `destroy` will destroy cursor and database connection disconnecting from server.
 
 ```js
 oplog.destroy(function(){
@@ -42,14 +42,14 @@ oplog.destroy(function(){
 })
 ```
 
-### Use `ignore` to pause and resume oplog events.
+Use the `ignore` flag to pause and resume oplog events.
 
 ```js
 oplog.ignore = true; // to pause
 oplog.ignore = false // to resume
 ```
 
-### `oplog.filter` no longer has a `ns` method, you need to pass the namespace when invoking the filter method.
+`oplog.filter` no longer has a `ns` method, you need to pass the namespace when invoking the filter method.
 
 So instead of:
 
@@ -70,7 +70,7 @@ oplog.filter('*.posts')
 });
 ```
 
-### Filter object now has a `destroy` method to destroy the object.
+Filter object now has a `destroy` method to destroy the object.
 
 ```js
 filter.destroy(function(){
@@ -78,7 +78,7 @@ filter.destroy(function(){
 });
 ```
 
-### Filters also support the `ignore` flag, to pause and resume filter events.
+Filters also support the `ignore` flag, to pause and resume filter events.
 
 ```js
 filter.ignore = true; // to pause
