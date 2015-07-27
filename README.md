@@ -14,6 +14,8 @@ $ npm install mongo-oplog
 
 [Check the upgrading guide here](https://github.com/cayasso/mongo-oplog/blob/develop/UPGRADE.md)
 
+[Go here for the old 0.x readme](https://github.com/cayasso/mongo-oplog/tree/0.x)
+
 ## Usage
 
 ``` javascript
