@@ -9,7 +9,7 @@ var MongoClient = require('mongodb').MongoClient;
 var MongoOplog = require('../');
 var oplog, db, opdb;
 var conn = {
-  mongo: 'mongodb://127.0.0.1:27017/test',
+  mongo: 'mongodb://127.0.0.1:27017/optest',
   oplog: 'mongodb://127.0.0.1:27017/local',
   error: 'mongodb://127.0.0.1:8888/error'
 };
@@ -50,7 +50,7 @@ describe('mongo-oplog', function () {
 
   it('should emit `op` event', function (done) {
     var coll = db.collection('a');
-    var oplog = MongoOplog(conn.oplog, { ns: 'test.a' });
+    var oplog = MongoOplog(conn.oplog, { ns: 'optest.a' });
     oplog.on('op', function (doc) {
       doc.op.should.be.eql('i');
       doc.o.n.should.be.eql('JB');
@@ -67,7 +67,7 @@ describe('mongo-oplog', function () {
 
   it('should emit `insert` event', function (done) {
     var coll = db.collection('b');
-    var oplog = MongoOplog(conn.oplog, { ns: 'test.b' });
+    var oplog = MongoOplog(conn.oplog, { ns: 'optest.b' });
     oplog.on('insert', function (doc) {
       doc.op.should.be.eql('i');
       doc.o.n.should.be.eql('JBL');
@@ -84,7 +84,7 @@ describe('mongo-oplog', function () {
 
   it('should emit `update` event', function (done) {
     var coll = db.collection('c');
-    var oplog = MongoOplog(conn.oplog, { ns: 'test.c' });
+    var oplog = MongoOplog(conn.oplog, { ns: 'optest.c' });
     oplog.on('update', function (doc) {
       doc.op.should.be.eql('u');
       doc.o.$set.n.should.be.eql('US');
@@ -105,7 +105,7 @@ describe('mongo-oplog', function () {
   it('should emit `delete` event', function (done) {
     this.timeout(0);
     var coll = db.collection('d');
-    var oplog = MongoOplog(opdb, { ns: 'test.d' });
+    var oplog = MongoOplog(opdb, { ns: 'optest.d' });
     oplog.tail(function (err) {
       if (err) return done(err);
       coll.insert({ n: 'PM', c: 4 }, function (err, doc) {
@@ -169,7 +169,7 @@ describe('mongo-oplog', function () {
     var css = db.collection('css');
     var oplog = MongoOplog(conn.oplog);
 
-    var filter = oplog.filter('test.cs');
+    var filter = oplog.filter('optest.cs');
 
     filter.on('op', function(doc) {
       if ('L1' !== doc.o.n) done('should not throw');
