@@ -62,12 +62,14 @@ oplog.tail(function(){
 })
 ```
 
-### oplog.stop()
+### oplog.stop([fn])
 
 Stop tailing and disconnect from server.
 
 ```javascript
-oplog.stop()
+oplog.stop(function() {
+  console.log('tailing stopped');
+});
 ```
 
 ### oplog.destroy([fn])

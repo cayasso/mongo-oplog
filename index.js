@@ -139,10 +139,12 @@ oplog.filter = function filtering(ns) {
  * @api public
  */
 
-oplog.stop = function stop() {
+oplog.stop = function stop(fn) {
+  fn = fn || noop;
   if (this.stream) {
     this.stream.destroy();
     debug('server is stopping');
+    setImmediate(fn.bind(this));
   }
   return this;
 };
