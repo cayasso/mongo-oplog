@@ -1,6 +1,6 @@
-# Mongo Oplog
+# mongo-oplog
 
-[![NPM version](https://badge.fury.io/js/mongo-oplog.png)](http://badge.fury.io/js/mongo-oplog)
+[![NPM version](https://badge.fury.io/js/mongo-oplog.svg)](http://badge.fury.io/js/mongo-oplog)
 
 Listening to MongoDB live changes using oplog.
 
@@ -10,11 +10,15 @@ Listening to MongoDB live changes using oplog.
 $ npm install mongo-oplog
 ```
 
+## IMPORTANT! Migrating from 0.x to 1.x
+
+[Check the upgrading guide here](https://github.com/cayasso/mongo-oplog/blob/develop/UPGRADE.md)
+
 ## Usage
 
 ``` javascript
 var MongoOplog = require('mongo-oplog');
-var oplog = MongoOplog('mongodb://127.0.0.1:27017/local', 'test.posts').tail();
+var oplog = MongoOplog('mongodb://127.0.0.1:27017/local', { ns: 'test.posts' }).tail();
 
 oplog.on('op', function (data) {
   console.log(data);
@@ -47,13 +51,12 @@ oplog.stop(function () {
 
 ## API
 
-### MongoOplog(uri, [[ns], [options]])
+### MongoOplog(uri, [options])
 
 * `uri`: Valid MongoDB uri or a MongoDB server instance.
-* `ns`: Namespace for emitting, namespace format is `database` + `.` + `collection` eg.(`test.posts`).
 * `options` MongoDB onnection options.
 
-### tail([fn])
+### oplog.tail([fn])
 
 Start tailing.
 
@@ -63,52 +66,62 @@ oplog.tail(function(){
 })
 ```
 
-### stop([fn])
+### oplog.stop([fn])
 
 Stop tailing and disconnect from server.
 
 ```javascript
-oplog.stop(function(){
+oplog.stop(function() {
   console.log('tailing stopped');
+});
+```
+
+### oplog.destroy([fn])
+
+Destroy the `mongo-oplog` object by stop tailing and disconnecting from server.
+
+```javascript
+oplog.destroy(function(){
+  console.log('destroyed');
 })
 ```
 
-### filter([ns])
+### oplog.ignore
 
-Filter by namespace.
+Pause and resume oplog events.
 
 ```javascript
-oplog.filter('*.posts')
+oplog.ignore = true; // to pause
+oplog.ignore = false // to resume
+```
+
+### oplog.filter(ns)
+
+Create and return a filter object.
+
+```javascript
+var filter = oplog.filter('*.posts');
+filter.on('op', fn);
 oplog.tail();
 ```
 
-### filter.ns(ns)
+### filter.destroy([fn]);
 
-Filter by namespace.
+Destroy filter object.
 
 ```javascript
-oplog.filter()
-.ns('*.posts')
-.on('op', function(doc){
-  console.log(doc);
-});
+filter.destroy(function(){
+  console.log('destroyed');
+})
+```
 
-// or
-oplog.filter()
-.ns('test.*')
-.on('op', function(doc){
-  console.log(doc);
-});
+### filter.ignore
 
-// or
-oplog.filter()
-.ns('test.posts');
-.on('op', function(doc){
-  console.log(doc);
-});
+Pause and resume filter events.
 
-// start tailing
-oplog.tail();
+```javascript
+filter.ignore = true; // to pause
+filter.ignore = false // to resume
 ```
 
 ### events
@@ -150,7 +163,7 @@ $ make test
 
 (The MIT License)
 
-Copyright (c) 2013 Jonathan Brumley &lt;cayasso@gmail.com&gt;
+Copyright (c) 2015 Jonathan Brumley &lt;cayasso@gmail.com&gt;
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
