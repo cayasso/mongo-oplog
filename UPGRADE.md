@@ -5,6 +5,7 @@ The constructor does no longer support `new`, just call the constructor as a reg
 ```js
 // instead of
 var oplog = new MongoOplog(uri);
+
 // use this
 var oplog = MongoOplog(uri);
 ```
@@ -16,10 +17,9 @@ var options = {
   database: 'local'
 };
 
-var oplog = new MongoOplog(uri, 'test.posts', options);
+var oplog = MongoOplog(uri, 'test.posts', options);
 
 // use like this
-
 var options = {
   ns: 'test.posts',
   database: 'local'
