@@ -76,6 +76,7 @@ oplog.init = function init(conn, options) {
       MongoClient.connect(conn, options, function getDb(err, db) {
         if (err) return ctx.onerror(err, cb);
         debug('successfully connected');
+        db = db.db(options.database || 'local');
         cb(null, ctx.db = db);
       });
     } else {
