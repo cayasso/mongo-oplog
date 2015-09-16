@@ -223,7 +223,7 @@ oplog.onerror = function onerror(err, fn) {
     err = new Error('Unknown error:' + err);
     if (fn) fn(err);
     else throw err;
-  } else if (/cursor timed out/.test(err.message)) {
+  } else if (/cursor (killed or )?timed out/.test(err.message)) {
     debug('cursor timeout - re-tailing %j', err);
     this.tail();
   } else {
