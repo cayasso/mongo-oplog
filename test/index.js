@@ -346,6 +346,33 @@ describe('mongo-oplog', function () {
     });
   });
 
+  it('should start re-tailing on timeout', function (done) {
+    var c = 0;
+    var coll = db.collection('n');
+    var oplog = MongoOplog(conn.oplog, { ns: 'optest.n' });
+    oplog.on('op', function (doc) {
+      (++c).should.be.equal(doc.o.c);
+      if (6 === c) done();
+    });
+    oplog.tail(function(err, stream) {
+      coll.insert({ c: 1 });
+      coll.insert({ c: 2 });
+      coll.insert({ c: 3 });
+
+      // Mimic a timeout error
+      stream.emit('error', { 
+        message: 'cursor killed or timed out', 
+        stack: {} 
+      });
+      stream.close();
+      setTimeout(function () {
+        coll.insert({ c: 4 });
+        coll.insert({ c: 5 });
+        coll.insert({ c: 6 });
+      }, 500);
+    });
+  });
+
   after(function (done) {
     db.dropDatabase(function () {
       db.close(done);
