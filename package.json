@@ -31,7 +31,7 @@
   },
   "devDependencies": {
     "mocha": "*",
-    "pre-commit": "1.0.10",
-    "should": "^7.0.2"
+    "pre-commit": "1.1.1",
+    "should": "^7.1.0"
   }
 }
