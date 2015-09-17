@@ -299,6 +299,53 @@ describe('mongo-oplog', function () {
     });
   });
 
+  it('should stop tailing', function (done) {
+    var coll = db.collection('h');
+    var oplog = MongoOplog(conn.oplog, { ns: '*.h' });
+    oplog.on('op', function (doc) {
+      oplog.stop();
+      done();
+    });
+    oplog.tail(function (err){
+      if (err) return done(err);
+      coll.insert({ n: 'CR' }, function (err) {
+        if (err) return done(err);
+      });
+      coll.insert({ n: 'CR' }, function (err) {
+        if (err) return done(err);
+      });
+    });
+  });
+
+  it('should start from last ts when re-tailing', function (done) {
+    var c = 0;
+    var coll = db.collection('i');
+    var oplog = MongoOplog(conn.oplog, { ns: 'optest.i' });
+    oplog.on('op', function (doc) {
+      (++c).should.be.equal(doc.o.c);
+      if (6 === c) done();
+    });
+    oplog.tail(function() {
+      coll.insert({ c: 1 });
+      coll.insert({ c: 2 });
+      coll.insert({ c: 3 });
+      setTimeout(function () {
+        oplog.stop(function() {
+          oplog.tail(function() {
+            setTimeout(function () {
+              coll.insert({ c: 4 });
+              coll.insert({ c: 5 });
+              coll.insert({ c: 6 });
+              oplog.stop(function() {
+                oplog.tail();
+              }); 
+            }, 50);
+          });
+        }); 
+      }, 50);
+    });
+  });
+
   after(function (done) {
     db.dropDatabase(function () {
       db.close(done);

@@ -68,7 +68,7 @@ oplog.init = function init(conn, options) {
   var ctx = this;
   options = options || {};
   this.ns = options.ns;
-  this.ts = options.since;
+  this.ts = this.since = options.since || 0;
   this.coll = options.coll;
   conn = conn || 'mongodb://127.0.0.1:27017/local';
   this.ready = thunky(function ready(cb) {
@@ -112,7 +112,6 @@ oplog.tail = function tail(fn) {
       stream.on('end', ctx.onend.bind(ctx));
       stream.on('data', ctx.ondata.bind(ctx));
       stream.on('error', ctx.onerror.bind(ctx));
-      debug('starting cursor');
       fn(null, stream);
     });
   });
@@ -192,6 +191,7 @@ oplog.use = function use(fn, options) {
 oplog.ondata = function ondata(doc) {
   if (this.ignore) return this;
   debug('incoming data %j', doc);
+  this.ts = doc.ts;
   this.emit('op', doc);
   this.emit(this.events[doc.op], doc);
   return this;
