@@ -25,7 +25,7 @@
   "dependencies": {
     "debug": "2.2.x",
     "eventemitter3": "^1.1.1",
-    "mongo-oplog-cursor": "^0.1.4",
+    "mongo-oplog-cursor": "^0.2.0",
     "mongodb": "~2.0.x",
     "thunky": "^0.1.0"
   },

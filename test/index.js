@@ -364,12 +364,14 @@ describe('mongo-oplog', function () {
         message: 'cursor killed or timed out', 
         stack: {} 
       });
-      stream.close();
-      setTimeout(function () {
-        coll.insert({ c: 4 });
-        coll.insert({ c: 5 });
-        coll.insert({ c: 6 });
-      }, 500);
+      stream.close(function () {
+        setTimeout(function () {
+          coll.insert({ c: 4 });
+          coll.insert({ c: 5 });
+          coll.insert({ c: 6 });
+        }, 500);
+      });
+      
     });
   });
 
