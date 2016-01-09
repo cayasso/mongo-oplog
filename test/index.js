@@ -350,9 +350,25 @@ describe('mongo-oplog', function () {
     var c = 0;
     var coll = db.collection('n');
     var oplog = MongoOplog(conn.oplog, { ns: 'optest.n' });
+    var values = {}
+    var valueSize = 0
     oplog.on('op', function (doc) {
-      (++c).should.be.equal(doc.o.c);
-      if (6 === c) done();
+      if(doc.o.c in values){
+        done('repeat message: ' + doc.o.c)
+      }
+      values[doc.o.c] = doc.o.c
+      valueSize++
+      if(valueSize === 6){
+        var count = 0
+        for (var i = 1; i <= 6; i++) {
+          count += values[i]
+        }
+        if(count == 21) {
+          done()
+        } else {
+          done('Unexpected messages: ' + values)
+        }
+      }
     });
     oplog.tail(function(err, stream) {
       coll.insert({ c: 1 });
@@ -360,18 +376,20 @@ describe('mongo-oplog', function () {
       coll.insert({ c: 3 });
 
       // Mimic a timeout error
-      stream.emit('error', { 
-        message: 'cursor killed or timed out', 
-        stack: {} 
-      });
-      stream.close(function () {
-        setTimeout(function () {
+      setTimeout(function() {
+        stream.emit('error', {
+          message: 'cursor killed or timed out',
+          stack: {}
+        });
+        stream.close()
+      }, 500)
+      stream.on('error', function () {
+        setTimeout(function() {
           coll.insert({ c: 4 });
           coll.insert({ c: 5 });
           coll.insert({ c: 6 });
-        }, 500);
+        }, 500)
       });
-      
     });
   });
 
