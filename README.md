@@ -56,7 +56,7 @@ oplog.stop(function () {
 ### MongoOplog(uri, [options])
 
 * `uri`: Valid MongoDB uri or a MongoDB server instance.
-* `options` MongoDB onnection options.
+* `options` MongoDB connection options.
 
 ### oplog.tail([fn])
 
@@ -139,7 +139,7 @@ Events supported by `oplog` and `filter`;
 
 ## Run tests
 
-Configure MongoDB for ac active oplog:
+Configure MongoDB for active oplog:
 
 Start MongoDB with:
 
