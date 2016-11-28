@@ -76,6 +76,7 @@ oplog.init = function init(conn, options) {
       MongoClient.connect(conn, options, function getDb(err, db) {
         if (err) return ctx.onerror(err, cb);
         debug('successfully connected');
+        ctx.onopen(cb);
         db = db.db(options.database || 'local');
         cb(null, ctx.db = db);
       });
@@ -194,6 +195,19 @@ oplog.ondata = function ondata(doc) {
   this.ts = doc.ts;
   this.emit('op', doc);
   this.emit(this.events[doc.op], doc);
+  return this;
+};
+
+/**
+ * Called upon open connection event.
+ *
+ * @return {Oplog} this
+ * @api private
+ */
+
+oplog.onopen = function onopen(fn) {
+  this.emit('open');
+  if (fn) fn;
   return this;
 };
 

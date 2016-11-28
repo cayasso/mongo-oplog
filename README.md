@@ -42,6 +42,10 @@ oplog.on('error', function (error) {
   console.log(error);
 });
 
+oplog.on('open', function () {
+  console.log('successfully connected');
+});
+
 oplog.on('end', function () {
   console.log('Stream ended');
 });
