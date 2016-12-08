@@ -2,46 +2,42 @@
 
 import Emitter from 'eventemitter3'
 import { MongoClient } from 'mongodb'
-import createFilter from './filter'
-import createCursor from './cursor'
 import createDebug from 'debug'
+import createFilter from './filter'
+import createStream from './stream'
 
 const MONGO_URI = 'mongodb://127.0.0.1:27017/local'
-
+const debug = createDebug('mongo-oplog')
 export const events = {
   i: 'insert',
   u: 'update',
   d: 'delete'
 }
 
-function back(fn) {
-  return function(cb) {
-    try {
-      const val = fn(cb)
-      if (val && 'function' === typeof val.then) {
-        return val.then(val => cb(null, val)).catch(cb)
-      }
-      cb(null, val)
-    } catch (err) {
-      cb(err)
+const back = fn => cb => {
+  try {
+    const val = fn(cb)
+    if (val && 'function' === typeof val.then) {
+      return val.then(val => cb(null, val)).catch(cb)
     }
+    cb(null, val)
+  } catch (err) {
+    cb(err)
   }
 }
 
 export default (uri, options = {}) => {
-  const { ns, since = 0, coll, database = 'local', ...opts } = options
-  const debug = createDebug('mongo-oplog')
-
-  let opdb, db, stream
+  let db, stream
   let connected = false
   let oplog = new Emitter()
-  let ts = since
+  let { ns, since, coll, ...opts } = options
 
+  since = since || 0
   uri = uri || MONGO_URI
 
   if ('string' !== typeof uri) {
     if (uri && uri.collection) {
-      db = opdb = uri
+      db = uri
       connected = true
     } else {
       throw new Error('Invalid mongo db.')
@@ -50,9 +46,8 @@ export default (uri, options = {}) => {
 
   async function connect() {
     try {
-      if (connected) return
+      if (connected) return db
       db = await MongoClient.connect(uri, opts)
-      opdb = db.db(database)
       connected = true
     } catch(err) {
       onerror(err)
@@ -62,8 +57,7 @@ export default (uri, options = {}) => {
   async function tail() {
     debug('Connected to oplog database')
     await connect()
-    const cursor = await createCursor({ db: opdb, ns, ts, coll })
-    stream = cursor.stream()
+    stream = await createStream({ ns, coll, since, db })
     stream.on('end', onend)
     stream.on('data', ondata)
     stream.on('error', onerror)
@@ -91,7 +85,7 @@ export default (uri, options = {}) => {
   function ondata(doc) {
     if (oplog.ignore) return oplog
     debug('incoming data %j', doc)
-    ts = doc.ts
+    since = doc.ts
     oplog.emit('op', doc)
     oplog.emit(events[doc.op], doc)
     return oplog
