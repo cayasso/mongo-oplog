@@ -4,17 +4,18 @@ import Emitter from 'eventemitter3'
 import dbg from 'debug'
 import { events } from './'
 
-export default (ns = '*', oplog) => {
+export function regex(pattern) {
+  pattern = pattern || '*'
+  pattern = pattern.replace(/[*]/g, '(.*?)')
+  return new RegExp(`^${pattern}$`, 'i')
+}
+
+export default (ns, oplog) => {
   const debug = dbg('mongo-oplog:filter')
   const filter = new Emitter()
   const re = regex(ns)
 
   debug('initializing filter with re %s', ns)
-
-  function regex(pattern) {
-    pattern = pattern.replace(/[*]/g, '(.*?)')
-    return new RegExp(`^${pattern}$`, 'i')
-  }
 
   function onop(doc) {
     if (!re.test(doc.ns) || filter.ignore) {

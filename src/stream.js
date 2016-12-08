@@ -1,6 +1,7 @@
 'use strict'
 
 import { Timestamp } from 'mongodb'
+import { regex } from './filter'
 
 export default async ({ db, ns, since, coll }) => {
   if (!db) {
@@ -9,6 +10,7 @@ export default async ({ db, ns, since, coll }) => {
 
   const cname = coll || 'oplog.rs'
   const query = {}
+
   coll = db.collection(cname)
 
   async function time() {
@@ -18,12 +20,6 @@ export default async ({ db, ns, since, coll }) => {
     }
     const doc = await coll.find({}, { ts: 1 }).sort({ $natural: -1 }).limit(1).nextObject()
     return doc ? doc.ts : Timestamp(0, (Date.now()/1000 | 0))
-  }
-
-  function regex(pattern) {
-    pattern = pattern || '*';
-    pattern = pattern.replace(/[*]/g, '(.*?)');
-    return new RegExp(`^${pattern}`, 'i');
   }
 
   if (ns) query.ns = { $regex: regex(ns) }
