@@ -1,0 +1,17 @@
+sudo: false
+language: node_js
+node_js:
+  - "7"
+  - "6"
+  - "5"
+  - "4"
+before_install:
+  - "npm install npm xo -g"
+
+# configure mongodb replica set
+before_script:
+  - echo "replSet = r0" | sudo tee -a /etc/mongodb.conf
+  - sudo service mongodb restart
+  - sleep 15
+  - mongo --eval 'rs.initiate()'
+  - sleep 15

@@ -6,7 +6,7 @@
   "homepage": "https://github.com/cayasso/mongo-oplog",
   "main": "./lib/index.js",
   "scripts": {
-    "test": "xo && ./node_modules/.bin/mocha",
+    "test": "xo && mocha",
     "build": "npm run clean && ./node_modules/.bin/babel src -d lib",
     "prepublish": "npm run build",
     "clean": "rm -rf lib/"
@@ -54,7 +54,6 @@
     "test"
   ],
   "xo": {
-    "curly": 0,
     "semicolon": false,
     "esnext": true,
     "space": 2,

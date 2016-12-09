@@ -13,11 +13,12 @@ export const events = {
   u: 'update',
   d: 'delete'
 }
-
+const noop = () => {}
 const back = fn => cb => {
   try {
     const val = fn(cb)
-    if (val && typeof val.then === 'function') {
+    if (!cb) return val
+    else if (val && typeof val.then === 'function') {
       return val.then(val => cb(null, val)).catch(cb)
     }
     cb(null, val)
@@ -46,23 +47,23 @@ export default (uri, options = {}) => {
   }
 
   async function connect() {
-    try {
-      if (connected) return db
-      db = await MongoClient.connect(uri, opts)
-      connected = true
-    } catch (err) {
-      onerror(err)
-    }
+    if (connected) return db
+    db = await MongoClient.connect(uri, opts)
+    connected = true
   }
 
   async function tail() {
-    debug('Connected to oplog database')
-    await connect()
-    stream = await createStream({ ns, coll, ts, db })
-    stream.on('end', onend)
-    stream.on('data', ondata)
-    stream.on('error', onerror)
-    return stream
+    try {
+      debug('Connected to oplog database')
+      await connect()
+      stream = await createStream({ ns, coll, ts, db })
+      stream.on('end', onend)
+      stream.on('data', ondata)
+      stream.on('error', onerror)
+      return stream
+    } catch (err) {
+      onerror(err)
+    }
   }
 
   function filter(ns) {
@@ -76,7 +77,6 @@ export default (uri, options = {}) => {
   }
 
   async function destroy() {
-    await connect()
     await stop()
     await db.close(true)
     connected = false
@@ -105,6 +105,7 @@ export default (uri, options = {}) => {
     } else {
       debug('oplog error %j', err)
       oplog.emit('error', err)
+      throw err
     }
   }
 
