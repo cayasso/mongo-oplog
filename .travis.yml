@@ -5,6 +5,8 @@ node_js:
   - "6"
   - "5"
   - "4"
+services:
+  - mongodb
 before_install:
   - "npm install npm xo -g"
 
@@ -12,6 +14,6 @@ before_install:
 before_script:
   - echo "replSet = r0" | sudo tee -a /etc/mongodb.conf
   - sudo service mongod restart
-  - sleep 15
+  - sleep 20
   - mongo --eval 'rs.initiate()'
   - sleep 15
