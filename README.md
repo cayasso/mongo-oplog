@@ -1,6 +1,8 @@
 # mongo-oplog
 
-[![NPM version](https://badge.fury.io/js/mongo-oplog.svg)](http://badge.fury.io/js/mongo-oplog)
+[![Build Status](https://img.shields.io/travis/cayasso/mongo-oplog/master.svg)](https://travis-ci.org/cayasso/mongo-oplog)
+[![NPM version](https://img.shields.io/npm/v/mongo-oplog.svg)](https://www.npmjs.com/package/mongo-oplog)
+[![XO code style](https://img.shields.io/badge/code_style-XO-5ed9c7.svg)](https://github.com/sindresorhus/xo)
 
 Listening to MongoDB live changes using oplog.
 
