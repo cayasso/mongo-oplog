@@ -26,7 +26,7 @@ oplog.tail()
 oplog.on('op', fn)
 ```
 
-The `tail`, `stop`, `destroy` methods now return a more convinient `Promise` object instead of the `oplog` object.
+The `tail`, `stop`, `destroy` methods now return a more convenient `Promise` instance instead of the `oplog` object.
 
 ```js
 oplog.tail().then(stream => {

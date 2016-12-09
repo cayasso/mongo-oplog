@@ -5,6 +5,9 @@ node_js:
   - "6"
   - "5"
   - "4"
+branches:
+ only:
+   - master
 services:
   - mongodb
 before_install:
