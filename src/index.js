@@ -13,8 +13,9 @@ export const events = {
   u: 'update',
   d: 'delete'
 }
-const noop = () => {}
-const back = fn => cb => {
+
+// Add callback support to promise
+const toCb = fn => cb => {
   try {
     const val = fn(cb)
     if (!cb) return val
@@ -112,8 +113,8 @@ export default (uri, options = {}) => {
   return Object.assign(oplog, {
     db,
     filter,
-    tail: back(tail),
-    stop: back(stop),
-    destroy: back(destroy)
+    tail: toCb(tail),
+    stop: toCb(stop),
+    destroy: toCb(destroy)
   })
 }
