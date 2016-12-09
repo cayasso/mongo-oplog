@@ -6,7 +6,21 @@
 
 Listening to MongoDB live changes using oplog.
 
-## IMPORTANT! Migrating from 1.x to 2.x
+## Features
+
+* Support start and stop tailing the MongoDB `oplog` at any time.
+* Support filtering `oplog` events by `namespaces` (database and collections).
+* Built on top of the native NodeJS [MongoDB driver](https://github.com/mongodb/node-mongodb-native/).
+* First class `Promise` support which enable the use of `async` and `await`.
+* The package has a very small footprint and requires just a few dependencies including `mongodb`, `debug` and `eventemitter3`.
+* Uses `eventemitter3` for high performance event emitting.
+* Strict and readable code enforced with [xo](https://github.com/sindresorhus/xo)
+* Unit tested and built with `babel` for backward compatibility older versions of NodeJS like `v4.x`.
+
+## IMPORTANT! Major update version 2.0.x
+
+2.0.x is a major rewrite taking advantage of `es6` and adding support for `promises` and `async/await`. Callbacks are still supported for backward compatibility.
+This version has minimum **API** changes, but these changes might affect your code, so please take a look to the upgrade guide before installing.
 
 [Check the upgrading guide here](https://github.com/cayasso/mongo-oplog/blob/develop/UPGRADE.md)
 
