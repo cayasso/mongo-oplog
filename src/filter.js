@@ -18,9 +18,7 @@ export default (ns, oplog) => {
   debug('initializing filter with re %s', ns)
 
   function onop(doc) {
-    if (!re.test(doc.ns) || filter.ignore) {
-      return undefined
-    }
+    if (!re.test(doc.ns) || filter.ignore) return
     debug('incoming data %j', doc)
     filter.emit('op', doc)
     filter.emit(events[doc.op], doc)

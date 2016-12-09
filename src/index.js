@@ -17,7 +17,7 @@ export const events = {
 const back = fn => cb => {
   try {
     const val = fn(cb)
-    if (val && 'function' === typeof val.then) {
+    if (val && typeof val.then === 'function') {
       return val.then(val => cb(null, val)).catch(cb)
     }
     cb(null, val)
@@ -27,15 +27,17 @@ const back = fn => cb => {
 }
 
 export default (uri, options = {}) => {
-  let db, stream
+  let db
+  let stream
   let connected = false
-  let oplog = new Emitter()
   let { ns, since, coll, ...opts } = options
+
+  const oplog = new Emitter()
 
   since = since || 0
   uri = uri || MONGO_URI
 
-  if ('string' !== typeof uri) {
+  if (typeof uri !== 'string') {
     if (uri && uri.collection) {
       db = uri
       connected = true
@@ -49,7 +51,7 @@ export default (uri, options = {}) => {
       if (connected) return db
       db = await MongoClient.connect(uri, opts)
       connected = true
-    } catch(err) {
+    } catch (err) {
       onerror(err)
     }
   }
@@ -65,7 +67,7 @@ export default (uri, options = {}) => {
   }
 
   function filter(ns) {
-    return createFilter(ns, oplog);
+    return createFilter(ns, oplog)
   }
 
   async function stop() {
@@ -99,7 +101,7 @@ export default (uri, options = {}) => {
 
   function onerror(err) {
     if (/cursor (killed or )?timed out/.test(err.message)) {
-      debug('cursor timeout - re-tailing %j', err);
+      debug('cursor timeout - re-tailing %j', err)
       tail()
     } else {
       debug('oplog error %j', err)

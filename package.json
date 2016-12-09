@@ -6,7 +6,7 @@
   "homepage": "https://github.com/cayasso/mongo-oplog",
   "main": "./lib/index.js",
   "scripts": {
-    "test": "./node_modules/.bin/mocha",
+    "test": "xo && ./node_modules/.bin/mocha",
     "build": "npm run clean && ./node_modules/.bin/babel src -d lib",
     "prepublish": "npm run build",
     "clean": "rm -rf lib/"
@@ -62,6 +62,8 @@
       "test/**"
     ],
     "rules": {
+      "curly": 0,
+      "new-cap": 0,
       "no-unused-vars": 0,
       "object-curly-spacing": 0,
       "no-unused-expressions": 0,
