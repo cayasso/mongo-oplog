@@ -30,11 +30,10 @@ export default (uri, options = {}) => {
   let db
   let stream
   let connected = false
-  let { ns, since, coll, ...opts } = options
-
+  const { ns, since, coll, ...opts } = options
   const oplog = new Emitter()
 
-  since = since || 0
+  let ts = since || 0
   uri = uri || MONGO_URI
 
   if (typeof uri !== 'string') {
@@ -59,7 +58,7 @@ export default (uri, options = {}) => {
   async function tail() {
     debug('Connected to oplog database')
     await connect()
-    stream = await createStream({ ns, coll, since, db })
+    stream = await createStream({ ns, coll, ts, db })
     stream.on('end', onend)
     stream.on('data', ondata)
     stream.on('error', onerror)
@@ -87,7 +86,7 @@ export default (uri, options = {}) => {
   function ondata(doc) {
     if (oplog.ignore) return oplog
     debug('incoming data %j', doc)
-    since = doc.ts
+    ts = doc.ts
     oplog.emit('op', doc)
     oplog.emit(events[doc.op], doc)
     return oplog

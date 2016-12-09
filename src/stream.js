@@ -3,18 +3,14 @@
 import { Timestamp } from 'mongodb'
 import { regex } from './filter'
 
-export default async ({ db, ns, since, coll }) => {
-  if (!db) {
-    throw new Error('Mongo db is missing.')
-  }
+export default async ({ db, ns, ts, coll }) => {
+  if (!db) throw new Error('Mongo db is missing.')
 
-  const cname = coll || 'oplog.rs'
   const query = {}
 
-  coll = db.collection(cname)
+  coll = db.collection(coll || 'oplog.rs')
 
   async function time() {
-    const ts = since
     if (ts) return (typeof ts !== 'number') ? ts : Timestamp(0, ts)
 
     const doc = await coll
