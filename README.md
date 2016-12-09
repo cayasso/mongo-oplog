@@ -32,17 +32,6 @@ oplog.on('op', data => {
   console.log(data);
 });
 
-<<<<<<< HEAD
-oplog.on('insert', function (doc) {
-  console.log(doc);
-});
-
-oplog.on('update', function (doc) {
-  console.log(doc);
-});
-
-oplog.on('delete', function (doc) {
-=======
 oplog.on('insert', doc => {
   console.log(doc);
 });
@@ -52,7 +41,6 @@ oplog.on('update', doc => {
 });
 
 oplog.on('delete', doc => {
->>>>>>> es6
   console.log(doc.o._id);
 });
 
