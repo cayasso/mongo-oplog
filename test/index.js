@@ -122,12 +122,11 @@ describe('mongo-oplog', function () {
 
   it('should emit cursor `end` event', function (done) {
     var oplog = MongoOplog(conn.oplog);
-    oplog.tail(function (err, cursor) {
+    oplog.tail(function (err, stream) {
       if (err) return done(err);
       oplog.once('end', done);
-      cursor.emit('end');
+      stream.emit('end');
     });
-
   });
 
   it('should emit `error` event', function (done) {
