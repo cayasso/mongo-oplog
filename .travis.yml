@@ -13,7 +13,7 @@ before_install:
 # configure mongodb replica set
 before_script:
   - echo "replSet = r0" | sudo tee -a /etc/mongodb.conf
-  - sudo service mongod restart
+  - sudo service mongodb restart
   - sleep 20
   - mongo --eval 'rs.initiate()'
   - sleep 15
