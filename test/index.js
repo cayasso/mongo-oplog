@@ -6,7 +6,7 @@
 
 var should = require('should');
 var MongoClient = require('mongodb').MongoClient;
-var MongoOplog = require('../');
+var MongoOplog = require('../src/index').default;
 var oplog, db, opdb;
 var conn = {
   mongo: 'mongodb://127.0.0.1:27017/optest',
@@ -37,14 +37,11 @@ describe('mongo-oplog', function () {
     done();
   });
 
-  it('should accept mongodb object as connection', function (done) {
+  it('should accept mongodb object as connection', function () {
     MongoClient.connect(conn.oplog, function (err, db) {
       if (err) return done(err);
-      var oplog = MongoOplog(db).tail(function (err) {
-        if (err) return done(err);
-        oplog.db.should.eql(db);
-        done();
-      });
+      var oplog = MongoOplog(db)
+      oplog.db.should.eql(db);
     });
   });
 
@@ -105,7 +102,7 @@ describe('mongo-oplog', function () {
   it('should emit `delete` event', function (done) {
     this.timeout(0);
     var coll = db.collection('d');
-    var oplog = MongoOplog(opdb, { ns: 'optest.d' });
+    var oplog = MongoOplog(conn.oplog, { ns: 'optest.d' });
     oplog.tail(function (err) {
       if (err) return done(err);
       coll.insert({ n: 'PM', c: 4 }, function (err, doc) {
@@ -125,16 +122,16 @@ describe('mongo-oplog', function () {
 
   it('should emit cursor `end` event', function (done) {
     var oplog = MongoOplog(conn.oplog);
-    oplog.tail(function (err, cursor) {
+    oplog.tail(function (err, stream) {
       if (err) return done(err);
       oplog.once('end', done);
-      cursor.emit('end');
+      stream.emit('end');
     });
-    
   });
 
   it('should emit `error` event', function (done) {
-    var oplog = MongoOplog(conn.error).tail();
+    var oplog = MongoOplog(conn.error)
+    oplog.tail()
     oplog.on('error', function (err) {
       err.should.be.an.Error;
       done();
@@ -318,57 +315,52 @@ describe('mongo-oplog', function () {
   });
 
   it('should start from last ts when re-tailing', function (done) {
+    this.timeout(0)
     var c = 0;
+    var v = {}
     var coll = db.collection('i');
     var oplog = MongoOplog(conn.oplog, { ns: 'optest.i' });
     oplog.on('op', function (doc) {
-      (++c).should.be.equal(doc.o.c);
+      v[doc.o.c] = 1;
+      Object.keys(v).length.should.be.equal(++c);
       if (6 === c) done();
+      else if (c > 6) done('Not valid')
     });
+
     oplog.tail(function() {
       coll.insert({ c: 1 });
       coll.insert({ c: 2 });
       coll.insert({ c: 3 });
       setTimeout(function () {
         oplog.stop(function() {
+          coll.insert({ c: 4 });
+          coll.insert({ c: 5 });
+          coll.insert({ c: 6 });
           oplog.tail(function() {
             setTimeout(function () {
-              coll.insert({ c: 4 });
-              coll.insert({ c: 5 });
-              coll.insert({ c: 6 });
               oplog.stop(function() {
                 oplog.tail();
-              }); 
-            }, 50);
+              });
+            }, 500);
           });
-        }); 
-      }, 50);
+        });
+      }, 500);
     });
   });
 
   it('should start re-tailing on timeout', function (done) {
+    this.timeout(0)
     var c = 0;
+    var v = {};
     var coll = db.collection('n');
     var oplog = MongoOplog(conn.oplog, { ns: 'optest.n' });
     var values = {}
     var valueSize = 0
     oplog.on('op', function (doc) {
-      if(doc.o.c in values){
-        done('repeat message: ' + doc.o.c)
-      }
-      values[doc.o.c] = doc.o.c
-      valueSize++
-      if(valueSize === 6){
-        var count = 0
-        for (var i = 1; i <= 6; i++) {
-          count += values[i]
-        }
-        if(count == 21) {
-          done()
-        } else {
-          done('Unexpected messages: ' + values)
-        }
-      }
+      v[doc.o.c] = 1;
+      Object.keys(v).length.should.be.equal(++c);
+      if (6 === c) done();
+      else if (c > 6) done('Not valid')
     });
     oplog.tail(function(err, stream) {
       coll.insert({ c: 1 });

@@ -4,9 +4,12 @@
   "description": "Watch mongodb oplog in a simple way",
   "author": "Jonathan Brumley <cayasso@gmail.com>",
   "homepage": "https://github.com/cayasso/mongo-oplog",
-  "main": "index.js",
+  "main": "./lib/index.js",
   "scripts": {
-    "test": "make test"
+    "test": "xo && mocha",
+    "build": "npm run clean && ./node_modules/.bin/babel src -d lib",
+    "prepublish": "npm run build",
+    "clean": "rm -rf lib/"
   },
   "repository": {
     "type": "git",
@@ -23,15 +26,49 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "debug": "2.2.x",
-    "eventemitter3": "^1.1.1",
-    "mongo-oplog-cursor": "^0.2.0",
-    "mongodb": "~2.1",
-    "thunky": "^0.1.0"
+    "debug": "2.3.x",
+    "eventemitter3": "^2.0.2",
+    "mongodb": "~2.2.x"
   },
   "devDependencies": {
+    "babel-cli": "^6.18.0",
+    "babel-core": "^6.20.0",
+    "babel-loader": "^6.2.9",
+    "babel-plugin-syntax-async-functions": "^6.13.0",
+    "babel-plugin-transform-async-to-generator": "^6.16.0",
+    "babel-plugin-transform-es2015-destructuring": "^6.19.0",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.18.0",
+    "babel-plugin-transform-object-rest-spread": "^6.20.2",
+    "babel-plugin-transform-regenerator": "^6.20.0",
+    "babel-plugin-transform-runtime": "^6.15.0",
+    "babel-polyfill": "^6.20.0",
+    "babel-preset-es2015": "^6.18.0",
+    "babel-preset-stage-0": "^6.16.0",
+    "babel-runtime": "^6.20.0",
     "mocha": "*",
-    "pre-commit": "1.1.1",
-    "should": "^7.1.0"
+    "pre-commit": "1.1.3",
+    "should": "^11.1.1",
+    "xo": "^0.17.1"
+  },
+  "pre-commit": [
+    "test"
+  ],
+  "xo": {
+    "semicolon": false,
+    "esnext": true,
+    "space": 2,
+    "ignores": [
+      "test/**"
+    ],
+    "rules": {
+      "curly": 0,
+      "new-cap": 0,
+      "no-unused-vars": 0,
+      "object-curly-spacing": 0,
+      "no-unused-expressions": 0,
+      "promise/param-names": 0,
+      "import/no-unassigned-import": 0,
+      "no-negated-condition": 0
+    }
   }
 }

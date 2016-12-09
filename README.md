@@ -1,8 +1,18 @@
 # mongo-oplog
 
-[![NPM version](https://badge.fury.io/js/mongo-oplog.svg)](http://badge.fury.io/js/mongo-oplog)
+[![Build Status](https://img.shields.io/travis/cayasso/mongo-oplog/master.svg)](https://travis-ci.org/cayasso/mongo-oplog)
+[![NPM version](https://img.shields.io/npm/v/mongo-oplog.svg)](https://www.npmjs.com/package/mongo-oplog)
+[![XO code style](https://img.shields.io/badge/code_style-XO-5ed9c7.svg)](https://github.com/sindresorhus/xo)
 
 Listening to MongoDB live changes using oplog.
+
+## IMPORTANT! Migrating from 1.x to 2.x
+
+[Check the upgrading guide here](https://github.com/cayasso/mongo-oplog/blob/develop/UPGRADE.md)
+
+[Go here for the old 1.x readme](https://github.com/cayasso/mongo-oplog/tree/1.x)
+
+[Go here for the old 0.x readme](https://github.com/cayasso/mongo-oplog/tree/0.x)
 
 ## Installation
 
@@ -10,22 +20,19 @@ Listening to MongoDB live changes using oplog.
 $ npm install mongo-oplog
 ```
 
-## IMPORTANT! Migrating from 0.x to 1.x
-
-[Check the upgrading guide here](https://github.com/cayasso/mongo-oplog/blob/develop/UPGRADE.md)
-
-[Go here for the old 0.x readme](https://github.com/cayasso/mongo-oplog/tree/0.x)
-
 ## Usage
 
 ``` javascript
-var MongoOplog = require('mongo-oplog');
-var oplog = MongoOplog('mongodb://127.0.0.1:27017/local', { ns: 'test.posts' }).tail();
+import MongoOplog from 'mongo-oplog'
+const oplog = MongoOplog('mongodb://127.0.0.1:27017/local', { ns: 'test.posts' })
 
-oplog.on('op', function (data) {
+oplog.tail();
+
+oplog.on('op', data => {
   console.log(data);
 });
 
+<<<<<<< HEAD
 oplog.on('insert', function (doc) {
   console.log(doc);
 });
@@ -35,18 +42,29 @@ oplog.on('update', function (doc) {
 });
 
 oplog.on('delete', function (doc) {
+=======
+oplog.on('insert', doc => {
+  console.log(doc);
+});
+
+oplog.on('update', doc => {
+  console.log(doc);
+});
+
+oplog.on('delete', doc => {
+>>>>>>> es6
   console.log(doc.o._id);
 });
 
-oplog.on('error', function (error) {
+oplog.on('error', error => {
   console.log(error);
 });
 
-oplog.on('end', function () {
+oplog.on('end', () => {
   console.log('Stream ended');
 });
 
-oplog.stop(function () {
+oplog.stop(() => {
   console.log('server stopped');
 });
 ```
@@ -61,31 +79,64 @@ oplog.stop(function () {
 ### oplog.tail([fn])
 
 Start tailing.
+This method support both `Promise` and `callback`.
 
 ```javascript
-oplog.tail(function(){
-  console.log('tailing started');
-})
+oplog.tail().then(() => {
+  console.log('tailing started')
+}).catch(err => console.error(err))
+
+// or with async/await
+async function tail() {
+  try {
+    await oplog.tail()
+    console.log('tailing started')
+  } catch (err) {
+    console.log(err)
+  }
+}
 ```
 
 ### oplog.stop([fn])
 
 Stop tailing and disconnect from server.
+This method support both `Promise` and `callback`.
 
 ```javascript
-oplog.stop(function() {
-  console.log('tailing stopped');
-});
+oplog.stop().then(() => {
+  console.log('tailing stopped')
+}).catch(err => console.error(err))
+
+// or with async/await
+async function stop() {
+  try {
+    await oplog.stop()
+    console.log('tailing stopped')
+  } catch (err) {
+    console.log(err)
+  }
+}
 ```
 
 ### oplog.destroy([fn])
 
 Destroy the `mongo-oplog` object by stop tailing and disconnecting from server.
+This method support both `Promise` and `callback`.
 
 ```javascript
-oplog.destroy(function(){
-  console.log('destroyed');
-})
+oplog.destroy.then(() => {
+  console.log('destroyed')
+}).catch(err => console.error(err))
+
+// or with async/await
+async function destroy() {
+  try {
+    await oplog.destroy()
+    console.log('destroyed')
+  } catch (err) {
+    console.log(err)
+  }
+}
 ```
 
 ### oplog.ignore
@@ -102,19 +153,17 @@ oplog.ignore = false // to resume
 Create and return a filter object.
 
 ```javascript
-var filter = oplog.filter('*.posts');
-filter.on('op', fn);
-oplog.tail();
+const filter = oplog.filter('*.posts')
+filter.on('op', fn)
+oplog.tail()
 ```
 
-### filter.destroy([fn]);
+### filter.destroy()
 
 Destroy filter object.
 
 ```javascript
-filter.destroy(function(){
-  console.log('destroyed');
-})
+filter.destroy()
 ```
 
 ### filter.ignore
