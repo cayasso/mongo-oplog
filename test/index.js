@@ -187,7 +187,7 @@ describe('mongo-oplog', function () {
   it('should filter by namespace in constructor', function (done) {
     var f1 = db.collection('f1');
     var f2 = db.collection('f2');
-    var oplog = MongoOplog(null, { ns: '*.f1' });
+    var oplog = MongoOplog(conn.oplog, { ns: '*.f1' });
     oplog.on('op', function (doc) {
       doc.o.n.should.be.eql('L2');
       done();
