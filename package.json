@@ -1,6 +1,6 @@
 {
   "name": "mongo-oplog",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Watch mongodb oplog in a simple way",
   "author": "Jonathan Brumley <cayasso@gmail.com>",
   "homepage": "https://github.com/cayasso/mongo-oplog",
