@@ -6,7 +6,7 @@
 
 var should = require('should');
 var MongoClient = require('mongodb').MongoClient;
-var MongoOplog = require('../src/index').default;
+var MongoOplog = require('../lib/index').default;
 var oplog, db, opdb;
 var conn = {
   mongo: 'mongodb://127.0.0.1:27017/optest',

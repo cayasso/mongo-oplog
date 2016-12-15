@@ -4,12 +4,10 @@
     "stage-0"
   ],
   "plugins": [
-    "transform-runtime",
     "transform-regenerator",
     "syntax-async-functions",
     "transform-object-rest-spread",
     "transform-async-to-generator",
-    "transform-es2015-destructuring",
-    "transform-es2015-modules-commonjs"
+    "transform-es2015-destructuring"
   ]
 }

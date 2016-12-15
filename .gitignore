@@ -1,4 +1,5 @@
 node_modules
+examples
 .DS_Store
 dump.rdb
 *.log

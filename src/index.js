@@ -1,5 +1,6 @@
 'use strict'
 
+import 'babel-polyfill'
 import Emitter from 'eventemitter3'
 import { MongoClient } from 'mongodb'
 import createDebug from 'debug'
