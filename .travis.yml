@@ -1,0 +1,23 @@
+sudo: required
+language: node_js
+node_js:
+  - "7"
+  - "6"
+  - "5"
+  - "4"
+branches:
+ only:
+   - master
+services:
+  - mongodb
+before_install:
+  - npm install npm -g
+  - npm install xo -g
+  - npm -v
+  - node -v
+before_script:
+  - echo "replSet = r0" | sudo tee -a /etc/mongodb.conf
+  - sudo service mongodb restart
+  - sleep 20
+  - mongo --eval 'rs.initiate()'
+  - sleep 15

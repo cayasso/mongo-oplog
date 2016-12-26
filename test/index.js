@@ -6,10 +6,10 @@
 
 var should = require('should');
 var MongoClient = require('mongodb').MongoClient;
-var MongoOplog = require('../');
+var MongoOplog = require('../src/index').default;
 var oplog, db, opdb;
 var conn = {
-  mongo: 'mongodb://127.0.0.1:27017/test',
+  mongo: 'mongodb://127.0.0.1:27017/optest',
   oplog: 'mongodb://127.0.0.1:27017/local',
   error: 'mongodb://127.0.0.1:8888/error'
 };
@@ -37,20 +37,17 @@ describe('mongo-oplog', function () {
     done();
   });
 
-  it('should accept mongodb object as connection', function (done) {
+  it('should accept mongodb object as connection', function () {
     MongoClient.connect(conn.oplog, function (err, db) {
       if (err) return done(err);
-      var oplog = MongoOplog(db).tail(function (err) {
-        if (err) return done(err);
-        oplog.db.should.eql(db);
-        done();
-      });
+      var oplog = MongoOplog(db)
+      oplog.db.should.eql(db);
     });
   });
 
   it('should emit `op` event', function (done) {
     var coll = db.collection('a');
-    var oplog = MongoOplog(conn.oplog, { ns: 'test.a' });
+    var oplog = MongoOplog(conn.oplog, { ns: 'optest.a' });
     oplog.on('op', function (doc) {
       doc.op.should.be.eql('i');
       doc.o.n.should.be.eql('JB');
@@ -67,7 +64,7 @@ describe('mongo-oplog', function () {
 
   it('should emit `insert` event', function (done) {
     var coll = db.collection('b');
-    var oplog = MongoOplog(conn.oplog, { ns: 'test.b' });
+    var oplog = MongoOplog(conn.oplog, { ns: 'optest.b' });
     oplog.on('insert', function (doc) {
       doc.op.should.be.eql('i');
       doc.o.n.should.be.eql('JBL');
@@ -84,7 +81,7 @@ describe('mongo-oplog', function () {
 
   it('should emit `update` event', function (done) {
     var coll = db.collection('c');
-    var oplog = MongoOplog(conn.oplog, { ns: 'test.c' });
+    var oplog = MongoOplog(conn.oplog, { ns: 'optest.c' });
     oplog.on('update', function (doc) {
       doc.op.should.be.eql('u');
       doc.o.$set.n.should.be.eql('US');
@@ -105,7 +102,7 @@ describe('mongo-oplog', function () {
   it('should emit `delete` event', function (done) {
     this.timeout(0);
     var coll = db.collection('d');
-    var oplog = MongoOplog(opdb, { ns: 'test.d' });
+    var oplog = MongoOplog(conn.oplog, { ns: 'optest.d' });
     oplog.tail(function (err) {
       if (err) return done(err);
       coll.insert({ n: 'PM', c: 4 }, function (err, doc) {
@@ -125,16 +122,16 @@ describe('mongo-oplog', function () {
 
   it('should emit cursor `end` event', function (done) {
     var oplog = MongoOplog(conn.oplog);
-    oplog.tail(function (err, cursor) {
+    oplog.tail(function (err, stream) {
       if (err) return done(err);
       oplog.once('end', done);
-      cursor.emit('end');
+      stream.emit('end');
     });
-    
   });
 
   it('should emit `error` event', function (done) {
-    var oplog = MongoOplog(conn.error).tail();
+    var oplog = MongoOplog(conn.error)
+    oplog.tail()
     oplog.on('error', function (err) {
       err.should.be.an.Error;
       done();
@@ -164,10 +161,33 @@ describe('mongo-oplog', function () {
     });
   });
 
+  it('should filter by the exact namespace', function(done){
+    var cs = db.collection('cs');
+    var css = db.collection('css');
+    var oplog = MongoOplog(conn.oplog);
+
+    var filter = oplog.filter('optest.cs');
+
+    filter.on('op', function(doc) {
+      if ('L1' !== doc.o.n) done('should not throw');
+      else done();
+    });
+
+    oplog.tail(function (err) {
+      if (err) return done(err);
+      css.insert({ n: 'L2' }, function(err) {
+        if (err) return done(err);
+        cs.insert({ n: 'L1' }, function(err) {
+          if (err) return done(err);
+        });
+      });
+    });
+  });
+
   it('should filter by namespace in constructor', function (done) {
     var f1 = db.collection('f1');
     var f2 = db.collection('f2');
-    var oplog = MongoOplog(null, { ns: '*.f1' });
+    var oplog = MongoOplog(conn.oplog, { ns: '*.f1' });
     oplog.on('op', function (doc) {
       doc.o.n.should.be.eql('L2');
       done();
@@ -272,6 +292,95 @@ describe('mongo-oplog', function () {
       });
       coll.insert({ n: 'CR' }, function (err) {
         if (err) return done(err);
+      });
+    });
+  });
+
+  it('should stop tailing', function (done) {
+    var coll = db.collection('h');
+    var oplog = MongoOplog(conn.oplog, { ns: '*.h' });
+    oplog.on('op', function (doc) {
+      oplog.stop();
+      done();
+    });
+    oplog.tail(function (err){
+      if (err) return done(err);
+      coll.insert({ n: 'CR' }, function (err) {
+        if (err) return done(err);
+      });
+      coll.insert({ n: 'CR' }, function (err) {
+        if (err) return done(err);
+      });
+    });
+  });
+
+  it('should start from last ts when re-tailing', function (done) {
+    this.timeout(0)
+    var c = 0;
+    var v = {}
+    var coll = db.collection('i');
+    var oplog = MongoOplog(conn.oplog, { ns: 'optest.i' });
+    oplog.on('op', function (doc) {
+      v[doc.o.c] = 1;
+      Object.keys(v).length.should.be.equal(++c);
+      if (6 === c) done();
+      else if (c > 6) done('Not valid')
+    });
+
+    oplog.tail(function() {
+      coll.insert({ c: 1 });
+      coll.insert({ c: 2 });
+      coll.insert({ c: 3 });
+      setTimeout(function () {
+        oplog.stop(function() {
+          coll.insert({ c: 4 });
+          coll.insert({ c: 5 });
+          coll.insert({ c: 6 });
+          oplog.tail(function() {
+            setTimeout(function () {
+              oplog.stop(function() {
+                oplog.tail();
+              });
+            }, 500);
+          });
+        });
+      }, 500);
+    });
+  });
+
+  it('should start re-tailing on timeout', function (done) {
+    this.timeout(0)
+    var c = 0;
+    var v = {};
+    var coll = db.collection('n');
+    var oplog = MongoOplog(conn.oplog, { ns: 'optest.n' });
+    var values = {}
+    var valueSize = 0
+    oplog.on('op', function (doc) {
+      v[doc.o.c] = 1;
+      Object.keys(v).length.should.be.equal(++c);
+      if (6 === c) done();
+      else if (c > 6) done('Not valid')
+    });
+    oplog.tail(function(err, stream) {
+      coll.insert({ c: 1 });
+      coll.insert({ c: 2 });
+      coll.insert({ c: 3 });
+
+      // Mimic a timeout error
+      setTimeout(function() {
+        stream.emit('error', {
+          message: 'cursor killed or timed out',
+          stack: {}
+        });
+        stream.close()
+      }, 500)
+      stream.on('error', function () {
+        setTimeout(function() {
+          coll.insert({ c: 4 });
+          coll.insert({ c: 5 });
+          coll.insert({ c: 6 });
+        }, 500)
       });
     });
   });
