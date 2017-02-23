@@ -1,6 +1,7 @@
 'use strict'
 
-import 'babel-polyfill'
+global._babelPolyfill || require( "babel-polyfill" );
+
 import Emitter from 'eventemitter3'
 import { MongoClient } from 'mongodb'
 import createDebug from 'debug'
