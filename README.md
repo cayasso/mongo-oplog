@@ -194,13 +194,14 @@ Configure MongoDB for active oplog:
 
 Start MongoDB with:
 
-``` bash
+```bash
 $ mongod --replSet test
 ```
 
 Start a `mongo` shell and configure mongo as follows:
 
 ```bash
+$ mongo
 > var config = {_id: "test", members: [{_id: 0, host: "127.0.0.1:27017"}]}
 > rs.initiate(config)
 ```
@@ -209,7 +210,7 @@ Once configuration is initiated then you can run the test:
 
 ``` bash
 $ npm install
-$ make test
+$ npm run test
 ```
 
 ## License
