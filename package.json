@@ -9,7 +9,7 @@
   "scripts": {
     "test": "xo && mocha",
     "build": "npm run clean && ./node_modules/.bin/babel src -d lib",
-    "prepublish": "npm run build",
+    "prepare": "npm run build",
     "clean": "rm -rf lib/"
   },
   "repository": {

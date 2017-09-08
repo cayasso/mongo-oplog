@@ -107,7 +107,6 @@ export default (uri, options = {}) => {
     } else {
       debug('oplog error %j', err)
       oplog.emit('error', err)
-      throw err
     }
   }
 
