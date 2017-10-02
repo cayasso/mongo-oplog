@@ -90,9 +90,9 @@ describe('mongo-oplog', function () {
     });
     oplog.tail(function (err) {
       if (err) return done(err);
-      coll.insert({ n: 'CR', c: 3 }, function (err) {
+      coll.insert({ n: 'CR', c: 3 }, function (err, doc) {
         if (err) return done(err);
-        coll.update({ n: 'CR', c: 3 }, { $set: { n: 'US', c: 7 } }, function (err) {
+        coll.update({_id: {$exists: true}, n: 'CR', c: 3 }, { $set: { n: 'US', c: 7 } }, function (err) {
           if (err) return done(err);
         });
       });
@@ -113,7 +113,7 @@ describe('mongo-oplog', function () {
           doc.o._id.should.be.eql(id);
           done();
         });
-        coll.remove({ n: 'PM', c: 4 }, function (err) {
+        coll.remove({_id: {$exists: true}, n: 'PM', c: 4 }, function (err) {
           if (err) return done(err);
         });
       });
