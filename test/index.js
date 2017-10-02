@@ -385,6 +385,11 @@ describe('mongo-oplog', function () {
     });
   });
 
+  it('should not throw if `destroy` called before connecting', function (done) {
+    let oplog = MongoOplog();
+    oplog.destroy(done);
+  });
+
   after(function (done) {
     db.dropDatabase(function () {
       db.close(done);
