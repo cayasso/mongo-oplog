@@ -1,16 +1,16 @@
 'use strict'
 
-import Emitter from 'eventemitter3'
-import dbg from 'debug'
-import { events } from './'
+const Emitter = require('eventemitter3')
+const dbg = require('debug')
+const { events } = require('./')
 
-export function regex(pattern) {
+function regex(pattern) {
   pattern = pattern || '*'
   pattern = pattern.replace(/[*]/g, '(.*?)')
   return new RegExp(`^${pattern}$`, 'i')
 }
 
-export default (ns, oplog) => {
+module.exports = (ns, oplog) => {
   const debug = dbg('mongo-oplog:filter')
   const filter = new Emitter()
   const re = regex(ns)
@@ -34,3 +34,5 @@ export default (ns, oplog) => {
 
   return Object.assign(filter, { destroy })
 }
+
+module.exports.regex = regex

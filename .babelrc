@@ -1,13 +1,10 @@
 {
+  "plugins": ["transform-object-rest-spread"],
   "presets": [
-    "es2015",
-    "stage-0"
-  ],
-  "plugins": [
-    "transform-regenerator",
-    "syntax-async-functions",
-    "transform-object-rest-spread",
-    "transform-async-to-generator",
-    "transform-es2015-destructuring"
+    ["env", {
+      "targets": {
+        "node": "6"
+      }
+    }]
   ]
 }

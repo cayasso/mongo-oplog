@@ -22,7 +22,7 @@ Listening to MongoDB live changes using oplog.
 2.0.x is a major rewrite taking advantage of `es6` and adding support for `promises` and `async/await`. Callbacks are still supported for backward compatibility.
 This version has minimum **API** changes, but these changes might affect your code, so please take a look at the upgrading guide before installing.
 
-[Check the upgrading guide here](https://github.com/cayasso/mongo-oplog/blob/master/UPGRADE.md)
+[Check the upgrading guide here](https://github.com/cayasso/mongo-oplog/blob/develop/UPGRADE.md)
 
 [Go here for the old 1.x readme](https://github.com/cayasso/mongo-oplog/tree/1.x)
 
@@ -33,6 +33,34 @@ This version has minimum **API** changes, but these changes might affect your co
 ``` bash
 $ npm install mongo-oplog
 ```
+
+## Configure MongoDB with replica set
+
+You need to configure your MongoDB instance (local instance) to have access to the [oplog](https://docs.mongodb.com/manual/core/replica-set-oplog/), here are some quick steps on how to do so:
+
+1. Shutdown your existing mongo instance if its running.
+
+2. Restart the instance. Use the `--replSet` option to specify the name of the replica set.
+
+``` bash
+$ sudo mongod --replSet rs0
+```
+
+3. Connect to the mongo instance by executing `mongo` in your terminal:
+
+```bash
+$ mongo
+```
+
+4. In the mongo shell run `rs.initiate()` to initiate the new replica set:
+
+```bash
+> rs.initiate()
+```
+
+Once it is initiated then you are ready to start using `mongo-oplog`.
+
+And [here is the official MongoDB documentation](https://docs.mongodb.com/manual/tutorial/convert-standalone-to-replica-set/) if you need additional help on MongoDB replica set.
 
 ## Usage
 
@@ -190,23 +218,7 @@ Events supported by `oplog` and `filter`;
 
 ## Run tests
 
-Configure MongoDB for active oplog:
-
-Start MongoDB with:
-
-```bash
-$ mongod --replSet test
-```
-
-Start a `mongo` shell and configure mongo as follows:
-
-```bash
-$ mongo
-> var config = {_id: "test", members: [{_id: 0, host: "127.0.0.1:27017"}]}
-> rs.initiate(config)
-```
-
-Once configuration is initiated then you can run the test:
+Configure MongoDB for active oplog, once this is done then you can run the test:
 
 ``` bash
 $ npm install

@@ -1,9 +1,9 @@
 'use strict'
 
-import { Timestamp } from 'mongodb'
-import { regex } from './filter'
+const { Timestamp } = require('mongodb')
+const { regex } = require('./filter')
 
-export default async ({ db, ns, ts, coll }) => {
+module.exports = async ({ db, ns, ts, coll }) => {
   if (!db) throw new Error('Mongo db is missing.')
 
   const query = {}
