@@ -12,6 +12,7 @@ const conn = {
 
 let db
 let opdb
+let oplog
 
 describe('mongo-oplog', function () {
   before(function (done) {
@@ -27,7 +28,7 @@ describe('mongo-oplog', function () {
   })
 
   it('should have required methods', function (done) {
-    const oplog = MongoOplog(opdb)
+    oplog = MongoOplog(opdb)
     should(oplog.tail).be.a.Function
     should(oplog.stop).be.a.Function
     should(oplog.filter).be.a.Function
@@ -35,17 +36,20 @@ describe('mongo-oplog', function () {
     done()
   })
 
-  it('should accept mongodb object as connection', function () {
+  it('should accept mongodb object as connection', function (done) {
     MongoClient.connect(conn.oplog, function (err, db) {
       if (err) return done(err)
-      const oplog = MongoOplog(db)
+      oplog = MongoOplog(db)
       should(oplog.db).eql(db)
+      db.dropDatabase(function () {
+        db.close(done)
+      })
     })
   })
 
   it('should emit `op` event', function (done) {
     const coll = db.collection('a')
-    const oplog = MongoOplog(conn.oplog, { ns: 'optest.a' })
+    oplog = MongoOplog(conn.oplog, { ns: 'optest.a' })
     oplog.on('op', function (doc) {
       should(doc.op).be.eql('i')
       should(doc.o.n).be.eql('JB')
@@ -62,7 +66,7 @@ describe('mongo-oplog', function () {
 
   it('should emit `insert` event', function (done) {
     const coll = db.collection('b')
-    const oplog = MongoOplog(conn.oplog, { ns: 'optest.b' })
+    oplog = MongoOplog(conn.oplog, { ns: 'optest.b' })
     oplog.on('insert', function (doc) {
       should(doc.op).be.eql('i')
       should(doc.o.n).be.eql('JBL')
@@ -79,7 +83,7 @@ describe('mongo-oplog', function () {
 
   it('should emit `update` event', function (done) {
     const coll = db.collection('c')
-    const oplog = MongoOplog(conn.oplog, { ns: 'optest.c' })
+    oplog = MongoOplog(conn.oplog, { ns: 'optest.c' })
     oplog.on('update', function (doc) {
       should(doc.op).be.eql('u')
       should(doc.o.$set.n).be.eql('US')
@@ -100,7 +104,7 @@ describe('mongo-oplog', function () {
   it('should emit `delete` event', function (done) {
     this.timeout(0)
     const coll = db.collection('d')
-    const oplog = MongoOplog(conn.oplog, { ns: 'optest.d' })
+    oplog = MongoOplog(conn.oplog, { ns: 'optest.d' })
     oplog.tail(function (err) {
       if (err) return done(err)
       coll.insert({ n: 'PM', c: 4 }, function (err, doc) {
@@ -119,16 +123,19 @@ describe('mongo-oplog', function () {
   })
 
   it('should emit cursor `end` event', function (done) {
-    const oplog = MongoOplog(conn.oplog)
+    oplog = MongoOplog(conn.oplog)
     oplog.tail(function (err, stream) {
       if (err) return done(err)
-      oplog.once('end', done)
+      oplog.once('end', () => {
+        done()
+      })
       stream.emit('end')
+
     })
   })
 
   it('should emit `error` event', function (done) {
-    const oplog = MongoOplog(conn.error)
+    oplog = MongoOplog(conn.error)
     oplog.tail()
     oplog.on('error', function (err) {
       should(err).be.an.Error
@@ -139,7 +146,7 @@ describe('mongo-oplog', function () {
   it('should filter by collection', function (done) {
     const e1 = db.collection('e1')
     const e2 = db.collection('e2')
-    const oplog = MongoOplog(conn.oplog)
+    oplog = MongoOplog(conn.oplog)
 
     const filter = oplog.filter('*.e1')
 
@@ -162,7 +169,7 @@ describe('mongo-oplog', function () {
   it('should filter by the exact namespace', function(done){
     const cs = db.collection('cs')
     const css = db.collection('css')
-    const oplog = MongoOplog(conn.oplog)
+    oplog = MongoOplog(conn.oplog)
     const filter = oplog.filter('optest.cs')
 
     filter.on('op', function(doc) {
@@ -184,7 +191,7 @@ describe('mongo-oplog', function () {
   it('should filter by namespace in constructor', function (done) {
     const f1 = db.collection('f1')
     const f2 = db.collection('f2')
-    const oplog = MongoOplog(conn.oplog, { ns: '*.f1' })
+    oplog = MongoOplog(conn.oplog, { ns: '*.f1' })
     oplog.on('op', function (doc) {
       should(doc.o.n).be.eql('L2')
       done()
@@ -202,7 +209,7 @@ describe('mongo-oplog', function () {
 
   it('should destroy filter', function (done) {
     const coll = db.collection('g')
-    const oplog = MongoOplog(conn.oplog)
+    oplog = MongoOplog(conn.oplog)
     const filter = oplog.filter('*.g')
     filter.on('op', function(doc) {
       filter.destroy()
@@ -221,7 +228,7 @@ describe('mongo-oplog', function () {
 
   it('should stop tailing', function (done) {
     const coll = db.collection('h')
-    const oplog = MongoOplog(conn.oplog, { ns: '*.h' })
+    oplog = MongoOplog(conn.oplog, { ns: '*.h' })
     oplog.on('op', function (doc) {
       oplog.stop()
       done()
@@ -239,7 +246,7 @@ describe('mongo-oplog', function () {
 
   it('should destroy oplog', function (done) {
     const coll = db.collection('i')
-    const oplog = MongoOplog(conn.oplog)
+    oplog = MongoOplog(conn.oplog)
     oplog.on('op', function (doc) {
       oplog.destroy(done)
     })
@@ -256,7 +263,7 @@ describe('mongo-oplog', function () {
 
   it('should ignore oplog op events', function (done) {
     const coll = db.collection('j')
-    const oplog = MongoOplog(conn.oplog, { ns: '*.j' })
+    oplog = MongoOplog(conn.oplog, { ns: '*.j' })
     oplog.on('op', function (doc) {
       oplog.ignore = true
       done()
@@ -274,7 +281,7 @@ describe('mongo-oplog', function () {
 
   it('should ignore filter op events', function (done) {
     const coll = db.collection('k')
-    const oplog = MongoOplog(conn.oplog)
+    oplog = MongoOplog(conn.oplog)
     const filter = oplog.filter('*.k')
 
     filter.on('op', function(doc) {
@@ -295,7 +302,7 @@ describe('mongo-oplog', function () {
 
   it('should stop tailing', function (done) {
     const coll = db.collection('h')
-    const oplog = MongoOplog(conn.oplog, { ns: '*.h' })
+    oplog = MongoOplog(conn.oplog, { ns: '*.h' })
     oplog.on('op', function (doc) {
       oplog.stop()
       done()
@@ -316,7 +323,7 @@ describe('mongo-oplog', function () {
     let c = 0
     const v = {}
     const coll = db.collection('i')
-    const oplog = MongoOplog(conn.oplog, { ns: 'optest.i' })
+    oplog = MongoOplog(conn.oplog, { ns: 'optest.i' })
     oplog.on('op', function (doc) {
       v[doc.o.c] = 1
       should(Object.keys(v).length).be.equal(++c)
@@ -356,8 +363,11 @@ describe('mongo-oplog', function () {
     oplog.on('op', function (doc) {
       v[doc.o.c] = 1
       should(Object.keys(v).length).be.equal(++c)
-      if (6 === c) done()
-      else if (c > 6) done('Not valid')
+      if (6 === c) {
+        setTimeout(function () {
+          oplog.destroy(done)
+        }, 100)
+      } else if (c > 6) done('Not valid')
     })
     oplog.tail(function(err, stream) {
       coll.insert({ c: 1 })
@@ -383,8 +393,13 @@ describe('mongo-oplog', function () {
   })
 
   it('should not throw if `destroy` called before connecting', function (done) {
-    const oplog = MongoOplog()
-    oplog.destroy(done)
+    oplog = MongoOplog()
+    done()
+  })
+
+  afterEach(function (done) {
+    if (oplog) oplog.destroy(done)
+    else setTimeout(done, 10)
   })
 
   after(function (done) {
