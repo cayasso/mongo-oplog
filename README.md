@@ -22,7 +22,7 @@ Listening to MongoDB live changes using oplog.
 2.0.x is a major rewrite taking advantage of `es6` and adding support for `promises` and `async/await`. Callbacks are still supported for backward compatibility.
 This version has minimum **API** changes, but these changes might affect your code, so please take a look at the upgrading guide before installing.
 
-[Check the upgrading guide here](https://github.com/cayasso/mongo-oplog/blob/develop/UPGRADE.md)
+[Check the upgrading guide here](https://github.com/cayasso/mongo-oplog/blob/master/UPGRADE.md)
 
 [Go here for the old 1.x readme](https://github.com/cayasso/mongo-oplog/tree/1.x)
 
