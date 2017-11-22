@@ -14,8 +14,7 @@ before_script:
   - |-
     echo "  replSetName: \"rs0\"" | sudo tee -a /etc/mongod.conf
   - sudo service mongod restart
-  - mkdir /tmp/build
   - travis_retry npm install
   - |-
-    mongo --eval 'rs.initiate({_id:"rs0", members: [{"_id":1, "host":"localhost:27017"}]})
+    mongo --eval 'rs.initiate({_id:"rs0", members: [{"_id":1, "host":"localhost:27017"}]})'
   - mongo --eval 'rs.status()'
