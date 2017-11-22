@@ -1,6 +1,5 @@
 'use strict'
 
-require('babel-polyfill')
 const Emitter = require('eventemitter3')
 const { MongoClient } = require('mongodb')
 const createDebug = require('debug')
