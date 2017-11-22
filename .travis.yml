@@ -14,4 +14,4 @@ before_script:
   - sudo service mongodb restart
   - sleep 20
   - mongo --eval 'rs.initiate()'
-  - sleep 15
+  - sleep 25
