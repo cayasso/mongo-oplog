@@ -15,7 +15,7 @@ Listening to MongoDB live changes using oplog.
 * The package has a very small footprint and requires just a few dependencies including `mongodb`, `debug` and `eventemitter3`.
 * Uses `eventemitter3` for high performance event emitting.
 * Strict and readable code enforced with [xo](https://github.com/sindresorhus/xo)
-* Unit tested with `mocha` and built with `babel` for backward compatibility with older versions of NodeJS like `v4.x` and `v5.x`.
+* Unit tested with `mocha` and built with `babel` for backward compatibility with older versions of NodeJS like `v6.x` and `v7.x`.
 
 ## IMPORTANT! Major update version 2.0.x
 
