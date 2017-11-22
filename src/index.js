@@ -81,6 +81,7 @@ module.exports = (uri, options = {}) => {
 
   async function destroy() {
     await stop()
+    if (!connected) return oplog
     await db.close(true)
     connected = false
     return oplog
@@ -108,7 +109,6 @@ module.exports = (uri, options = {}) => {
     } else {
       debug('oplog error %j', err)
       oplog.emit('error', err)
-      throw err
     }
   }
 
