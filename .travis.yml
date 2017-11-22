@@ -1,7 +1,6 @@
 sudo: required
 language: node_js
 node_js:
-  - "9"
   - "8"
   - "7"
   - "6"
@@ -10,11 +9,6 @@ branches:
    - master
 services:
   - mongodb
-before_install:
-  - npm install npm -g
-  - npm install xo -g
-  - npm -v
-  - node -v
 before_script:
   - echo "replSet = r0" | sudo tee -a /etc/mongodb.conf
   - sudo service mongodb restart
