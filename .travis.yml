@@ -10,8 +10,8 @@ branches:
 services:
   - mongodb
 before_script:
-  - echo "replSet = r0" | sudo tee -a /etc/mongodb.conf
-  - sudo service mongodb restart
+  - echo "replSetName = r0" | sudo tee -a /etc/mongodb.conf
+  - sudo service mongod restart
   - sleep 20
   - mongo --eval 'rs.initiate()'
   - sleep 25
