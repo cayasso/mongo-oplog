@@ -121,3 +121,4 @@ module.exports = (uri, options = {}) => {
 }
 
 module.exports.events = events
+module.exports.default = module.exports
