@@ -1,21 +1,19 @@
-'use strict';
+'use strict'
 
-/**
- * Module dependencies.
- */
+const should = require('should')
+const { MongoClient } = require('mongodb')
+const MongoOplog = require('../src/index')
 
-var should = require('should');
-var MongoClient = require('mongodb').MongoClient;
-var MongoOplog = require('../src/index').default;
-var oplog, db, opdb;
-var conn = {
+const conn = {
   mongo: 'mongodb://127.0.0.1:27017/optest',
   oplog: 'mongodb://127.0.0.1:27017/local',
   error: 'mongodb://127.0.0.1:8888/error'
-};
+}
+
+let db
+let opdb
 
 describe('mongo-oplog', function () {
-
   before(function (done) {
     MongoClient.connect(conn.mongo, function (err, database) {
       if (err) return done(err);
@@ -25,15 +23,15 @@ describe('mongo-oplog', function () {
   });
 
   it('should be a function', function () {
-    MongoOplog.should.be.a.Function;
+    should(MongoOplog).be.a.Function;
   });
 
   it('should have required methods', function (done) {
-    var oplog = MongoOplog(opdb);
-    oplog.tail.should.be.a.Function;
-    oplog.stop.should.be.a.Function;
-    oplog.filter.should.be.a.Function;
-    oplog.destroy.should.be.a.Function;
+    var oplog = MongoOplog(opdb)
+    should(oplog.tail).be.a.Function;
+    should(oplog.stop).be.a.Function;
+    should(oplog.filter).be.a.Function;
+    should(oplog.destroy).be.a.Function;
     done();
   });
 
@@ -41,7 +39,7 @@ describe('mongo-oplog', function () {
     MongoClient.connect(conn.oplog, function (err, db) {
       if (err) return done(err);
       var oplog = MongoOplog(db)
-      oplog.db.should.eql(db);
+      should(oplog.db).eql(db);
     });
   });
 
@@ -49,9 +47,9 @@ describe('mongo-oplog', function () {
     var coll = db.collection('a');
     var oplog = MongoOplog(conn.oplog, { ns: 'optest.a' });
     oplog.on('op', function (doc) {
-      doc.op.should.be.eql('i');
-      doc.o.n.should.be.eql('JB');
-      doc.o.c.should.be.eql(1);
+      should(doc.op).be.eql('i');
+      should(doc.o.n).be.eql('JB');
+      should(doc.o.c).be.eql(1);
       done();
     });
     oplog.tail(function (err) {
@@ -66,9 +64,9 @@ describe('mongo-oplog', function () {
     var coll = db.collection('b');
     var oplog = MongoOplog(conn.oplog, { ns: 'optest.b' });
     oplog.on('insert', function (doc) {
-      doc.op.should.be.eql('i');
-      doc.o.n.should.be.eql('JBL');
-      doc.o.c.should.be.eql(1);
+      should(doc.op).be.eql('i');
+      should(doc.o.n).be.eql('JBL');
+      should(doc.o.c).be.eql(1);
       done();
     });
     oplog.tail(function (err) {
@@ -83,9 +81,9 @@ describe('mongo-oplog', function () {
     var coll = db.collection('c');
     var oplog = MongoOplog(conn.oplog, { ns: 'optest.c' });
     oplog.on('update', function (doc) {
-      doc.op.should.be.eql('u');
-      doc.o.$set.n.should.be.eql('US');
-      doc.o.$set.c.should.be.eql(7);
+      should(doc.op).be.eql('u');
+      should(doc.o.$set.n).be.eql('US');
+      should(doc.o.$set.c).be.eql(7);
       done();
     });
     oplog.tail(function (err) {
@@ -109,8 +107,8 @@ describe('mongo-oplog', function () {
         if (err) return done(err);
         var id = (doc.ops || doc)[0]._id;
         oplog.on('delete', function (doc) {
-          doc.op.should.be.eql('d');
-          doc.o._id.should.be.eql(id);
+          should(doc.op).be.eql('d');
+          should(doc.o._id).be.eql(id);
           done();
         });
         coll.remove({ n: 'PM', c: 4 }, function (err) {
@@ -133,7 +131,7 @@ describe('mongo-oplog', function () {
     var oplog = MongoOplog(conn.error)
     oplog.tail()
     oplog.on('error', function (err) {
-      err.should.be.an.Error;
+      should(err).be.an.Error;
       done();
     });
   });
@@ -146,7 +144,7 @@ describe('mongo-oplog', function () {
     var filter = oplog.filter('*.e1');
 
     filter.on('op', function(doc) {
-      doc.o.n.should.be.eql('L1');
+      should(doc.o.n).be.eql('L1');
       done();
     });
 
@@ -189,7 +187,7 @@ describe('mongo-oplog', function () {
     var f2 = db.collection('f2');
     var oplog = MongoOplog(conn.oplog, { ns: '*.f1' });
     oplog.on('op', function (doc) {
-      doc.o.n.should.be.eql('L2');
+      should(doc.o.n).be.eql('L2');
       done();
     });
     oplog.tail(function (err) {
@@ -322,7 +320,7 @@ describe('mongo-oplog', function () {
     var oplog = MongoOplog(conn.oplog, { ns: 'optest.i' });
     oplog.on('op', function (doc) {
       v[doc.o.c] = 1;
-      Object.keys(v).length.should.be.equal(++c);
+      should(Object.keys(v).length).be.equal(++c);
       if (6 === c) done();
       else if (c > 6) done('Not valid')
     });
@@ -358,7 +356,7 @@ describe('mongo-oplog', function () {
     var valueSize = 0
     oplog.on('op', function (doc) {
       v[doc.o.c] = 1;
-      Object.keys(v).length.should.be.equal(++c);
+      should(Object.keys(v).length).be.equal(++c);
       if (6 === c) done();
       else if (c > 6) done('Not valid')
     });

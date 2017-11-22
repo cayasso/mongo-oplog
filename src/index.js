@@ -1,15 +1,16 @@
 'use strict'
 
-import 'babel-polyfill'
-import Emitter from 'eventemitter3'
-import { MongoClient } from 'mongodb'
-import createDebug from 'debug'
-import createFilter from './filter'
-import createStream from './stream'
+require('babel-polyfill')
+const Emitter = require('eventemitter3')
+const { MongoClient } = require('mongodb')
+const createDebug = require('debug')
+const createFilter = require('./filter')
+const createStream = require('./stream')
 
 const MONGO_URI = 'mongodb://127.0.0.1:27017/local'
 const debug = createDebug('mongo-oplog')
-export const events = {
+
+const events = {
   i: 'insert',
   u: 'update',
   d: 'delete'
@@ -29,7 +30,7 @@ const toCb = fn => cb => {
   }
 }
 
-export default (uri, options = {}) => {
+module.exports = (uri, options = {}) => {
   let db
   let stream
   let connected = false
@@ -119,3 +120,5 @@ export default (uri, options = {}) => {
     destroy: toCb(destroy)
   })
 }
+
+module.exports.events = events
