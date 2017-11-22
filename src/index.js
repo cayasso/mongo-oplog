@@ -80,6 +80,7 @@ export default (uri, options = {}) => {
 
   async function destroy() {
     await stop()
+    if (!connected) return oplog
     await db.close(true)
     connected = false
     return oplog
