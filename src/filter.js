@@ -2,7 +2,12 @@
 
 const Emitter = require('eventemitter3')
 const dbg = require('debug')
-const { events } = require('./')
+
+const events = {
+  i: 'insert',
+  u: 'update',
+  d: 'delete'
+}
 
 function regex(pattern) {
   pattern = pattern || '*'
@@ -21,7 +26,9 @@ module.exports = (ns, oplog) => {
     if (!re.test(doc.ns) || filter.ignore) return
     debug('incoming data %j', doc)
     filter.emit('op', doc)
-    filter.emit(events[doc.op], doc)
+    if (events[doc.op]) {
+      filter.emit(events[doc.op], doc)
+    }
   }
 
   function destroy() {
