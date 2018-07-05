@@ -10,8 +10,7 @@ const events = {
 }
 
 function regex(pattern) {
-  pattern = pattern || '*'
-  pattern = pattern.replace(/[*]/g, '(.*?)')
+  pattern = pattern || '(.*?)'
   return new RegExp(`^${pattern}$`, 'i')
 }
 
