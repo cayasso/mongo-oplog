@@ -8,7 +8,7 @@
   "types": "./src/index.d.ts",
   "scripts": {
     "test": "xo && mocha",
-    "build": "npm run clean && ./node_modules/.bin/babel src -d lib",
+    "build": "npm run clean && ./node_modules/.bin/babel src -d lib && cp src/index.d.ts lib/",
     "prepare": "npm run build",
     "clean": "rm -rf lib/"
   },
