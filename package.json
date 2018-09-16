@@ -5,7 +5,7 @@
   "author": "Jonathan Brumley <cayasso@gmail.com>",
   "homepage": "https://github.com/cayasso/mongo-oplog",
   "main": "./index.js",
-  "types": "./src/index.d.ts",
+  "types": "./lib/index.d.ts",
   "scripts": {
     "test": "xo && mocha",
     "build": "npm run clean && ./node_modules/.bin/babel src -d lib && cp src/index.d.ts lib/",
