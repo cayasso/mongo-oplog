@@ -21,7 +21,7 @@
   "dependencies": {
     "debug": "^3.1.0",
     "eventemitter3": "^2.0.3",
-    "mongodb": "~2.2.x"
+    "mongodb": "3.1.13"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
