@@ -10,15 +10,16 @@ const conn = {
   error: 'mongodb://127.0.0.1:8888/error'
 }
 
+let dbclient
 let db
-let opdb
 let oplog
 
 describe('mongo-oplog', function () {
   before(function (done) {
-    MongoClient.connect(conn.mongo, function (err, database) {
+    MongoClient.connect(conn.mongo, function (err, client) {
       if (err) return done(err)
-      db = database
+      dbclient = client
+      db = client.db()
       done()
     })
   })
@@ -28,7 +29,7 @@ describe('mongo-oplog', function () {
   })
 
   it('should have required methods', function (done) {
-    oplog = MongoOplog(opdb)
+    oplog = MongoOplog(conn.oplog)
     should(oplog.tail).be.a.Function
     should(oplog.stop).be.a.Function
     should(oplog.filter).be.a.Function
@@ -37,12 +38,13 @@ describe('mongo-oplog', function () {
   })
 
   it('should accept mongodb object as connection', function (done) {
-    MongoClient.connect(conn.oplog, function (err, db) {
+    MongoClient.connect(conn.oplog, function (err, client) {
+      let tDb = client.db();
       if (err) return done(err)
-      oplog = MongoOplog(db)
-      should(oplog.db).eql(db)
-      db.dropDatabase(function () {
-        db.close(done)
+      let toplog = MongoOplog(client)
+      should(toplog.client).eql(client)
+      tDb.dropDatabase(function () {
+        client.close(done)
       })
     })
   })
@@ -51,6 +53,7 @@ describe('mongo-oplog', function () {
     const coll = db.collection('a')
     oplog = MongoOplog(conn.oplog, { ns: 'optest.a' })
     oplog.on('op', function (doc) {
+      if (doc.op == 'c') return;
       should(doc.op).be.eql('i')
       should(doc.o.n).be.eql('JB')
       should(doc.o.c).be.eql(1)
@@ -404,7 +407,7 @@ describe('mongo-oplog', function () {
 
   after(function (done) {
     db.dropDatabase(function () {
-      db.close(done)
+      dbclient.close(done)
     })
   })
 

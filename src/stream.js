@@ -17,7 +17,7 @@ module.exports = async ({ db, ns, ts, coll }) => {
       .find({}, { ts: 1 })
       .sort({ $natural: -1 })
       .limit(1)
-      .nextObject()
+      .next()
 
     return doc ? doc.ts : Timestamp(0, (Date.now() / 1000 | 0))
   }
