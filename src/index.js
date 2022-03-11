@@ -12,16 +12,16 @@ const debug = createDebug('mongo-oplog')
 const events = {
   i: 'insert',
   u: 'update',
-  d: 'delete'
+  d: 'delete',
 }
 
 // Add callback support to promise
-const toCb = fn => cb => {
+const toCb = (fn) => (cb) => {
   try {
     const val = fn(cb)
     if (!cb) return val
     else if (val && typeof val.then === 'function') {
-      return val.then(val => cb(null, val)).catch(cb)
+      return val.then((val) => cb(null, val)).catch(cb)
     }
     cb(null, val)
   } catch (err) {
@@ -30,6 +30,7 @@ const toCb = fn => cb => {
 }
 
 module.exports = (uri, options = {}) => {
+  let client
   let db
   let stream
   let connected = false
@@ -40,8 +41,9 @@ module.exports = (uri, options = {}) => {
   uri = uri || MONGO_URI
 
   if (typeof uri !== 'string') {
-    if (uri && uri.collection) {
-      db = uri
+    if (uri && uri.db) {
+      client = uri
+      db = client.db()
       connected = true
     } else {
       throw new Error('Invalid mongo db.')
@@ -50,7 +52,8 @@ module.exports = (uri, options = {}) => {
 
   async function connect() {
     if (connected) return db
-    db = await MongoClient.connect(uri, opts)
+    client = await MongoClient.connect(uri, opts)
+    db = client.db()
     connected = true
   }
 
@@ -81,7 +84,7 @@ module.exports = (uri, options = {}) => {
   async function destroy() {
     await stop()
     if (!connected) return oplog
-    await db.close(true)
+    await client.close(true)
     connected = false
     return oplog
   }
@@ -112,11 +115,12 @@ module.exports = (uri, options = {}) => {
   }
 
   return Object.assign(oplog, {
+    client,
     db,
     filter,
     tail: toCb(tail),
     stop: toCb(stop),
-    destroy: toCb(destroy)
+    destroy: toCb(destroy),
   })
 }
 

@@ -7,18 +7,19 @@ const MongoOplog = require('../src/index')
 const conn = {
   mongo: 'mongodb://127.0.0.1:27017/optest',
   oplog: 'mongodb://127.0.0.1:27017/local',
-  error: 'mongodb://127.0.0.1:8888/error'
+  error: 'mongodb://127.0.0.1:8888/error',
 }
 
+let dbclient
 let db
-let opdb
 let oplog
 
 describe('mongo-oplog', function () {
   before(function (done) {
-    MongoClient.connect(conn.mongo, function (err, database) {
+    MongoClient.connect(conn.mongo, function (err, client) {
       if (err) return done(err)
-      db = database
+      dbclient = client
+      db = client.db()
       done()
     })
   })
@@ -28,7 +29,7 @@ describe('mongo-oplog', function () {
   })
 
   it('should have required methods', function (done) {
-    oplog = MongoOplog(opdb)
+    oplog = MongoOplog(conn.oplog)
     should(oplog.tail).be.a.Function
     should(oplog.stop).be.a.Function
     should(oplog.filter).be.a.Function
@@ -37,12 +38,13 @@ describe('mongo-oplog', function () {
   })
 
   it('should accept mongodb object as connection', function (done) {
-    MongoClient.connect(conn.oplog, function (err, db) {
+    MongoClient.connect(conn.oplog, function (err, client) {
+      let tDb = client.db()
       if (err) return done(err)
-      oplog = MongoOplog(db)
-      should(oplog.db).eql(db)
-      db.dropDatabase(function () {
-        db.close(done)
+      let toplog = MongoOplog(client)
+      should(toplog.client).eql(client)
+      tDb.dropDatabase(function () {
+        client.close(done)
       })
     })
   })
@@ -51,6 +53,7 @@ describe('mongo-oplog', function () {
     const coll = db.collection('a')
     oplog = MongoOplog(conn.oplog, { ns: 'optest.a' })
     oplog.on('op', function (doc) {
+      if (doc.op == 'c') return
       should(doc.op).be.eql('i')
       should(doc.o.n).be.eql('JB')
       should(doc.o.c).be.eql(1)
@@ -94,9 +97,13 @@ describe('mongo-oplog', function () {
       if (err) return done(err)
       coll.insert({ n: 'CR', c: 3 }, function (err, doc) {
         if (err) return done(err)
-        coll.update({_id: {$exists: true}, n: 'CR', c: 3 }, { $set: { n: 'US', c: 7 } }, function (err) {
-          if (err) return done(err)
-        })
+        coll.update(
+          { _id: { $exists: true }, n: 'CR', c: 3 },
+          { $set: { n: 'US', c: 7 } },
+          function (err) {
+            if (err) return done(err)
+          }
+        )
       })
     })
   })
@@ -115,7 +122,7 @@ describe('mongo-oplog', function () {
           should(doc.o._id).be.eql(id)
           done()
         })
-        coll.remove({_id: {$exists: true}, n: 'PM', c: 4 }, function (err) {
+        coll.remove({ _id: { $exists: true }, n: 'PM', c: 4 }, function (err) {
           if (err) return done(err)
         })
       })
@@ -130,7 +137,6 @@ describe('mongo-oplog', function () {
         done()
       })
       stream.emit('end')
-
     })
   })
 
@@ -150,7 +156,7 @@ describe('mongo-oplog', function () {
 
     const filter = oplog.filter('*.e1')
 
-    filter.on('op', function(doc) {
+    filter.on('op', function (doc) {
       should(doc.o.n).be.eql('L1')
       done()
     })
@@ -166,22 +172,22 @@ describe('mongo-oplog', function () {
     })
   })
 
-  it('should filter by the exact namespace', function(done){
+  it('should filter by the exact namespace', function (done) {
     const cs = db.collection('cs')
     const css = db.collection('css')
     oplog = MongoOplog(conn.oplog)
     const filter = oplog.filter('optest.cs')
 
-    filter.on('op', function(doc) {
+    filter.on('op', function (doc) {
       if ('L1' !== doc.o.n) done('should not throw')
       else done()
     })
 
     oplog.tail(function (err) {
       if (err) return done(err)
-      css.insert({ n: 'L2' }, function(err) {
+      css.insert({ n: 'L2' }, function (err) {
         if (err) return done(err)
-        cs.insert({ n: 'L1' }, function(err) {
+        cs.insert({ n: 'L1' }, function (err) {
           if (err) return done(err)
         })
       })
@@ -211,7 +217,7 @@ describe('mongo-oplog', function () {
     const coll = db.collection('g')
     oplog = MongoOplog(conn.oplog)
     const filter = oplog.filter('*.g')
-    filter.on('op', function(doc) {
+    filter.on('op', function (doc) {
       filter.destroy()
       done()
     })
@@ -233,7 +239,7 @@ describe('mongo-oplog', function () {
       oplog.stop()
       done()
     })
-    oplog.tail(function (err){
+    oplog.tail(function (err) {
       if (err) return done(err)
       coll.insert({ n: 'CR' }, function (err) {
         if (err) return done(err)
@@ -250,7 +256,7 @@ describe('mongo-oplog', function () {
     oplog.on('op', function (doc) {
       oplog.destroy(done)
     })
-    oplog.tail(function (err){
+    oplog.tail(function (err) {
       if (err) return done(err)
       coll.insert({ n: 'CR' }, function (err) {
         if (err) return done(err)
@@ -268,7 +274,7 @@ describe('mongo-oplog', function () {
       oplog.ignore = true
       done()
     })
-    oplog.tail(function (err){
+    oplog.tail(function (err) {
       if (err) return done(err)
       coll.insert({ n: 'CR' }, function (err) {
         if (err) return done(err)
@@ -284,7 +290,7 @@ describe('mongo-oplog', function () {
     oplog = MongoOplog(conn.oplog)
     const filter = oplog.filter('*.k')
 
-    filter.on('op', function(doc) {
+    filter.on('op', function (doc) {
       filter.ignore = true
       done()
     })
@@ -307,7 +313,7 @@ describe('mongo-oplog', function () {
       oplog.stop()
       done()
     })
-    oplog.tail(function (err){
+    oplog.tail(function (err) {
       if (err) return done(err)
       coll.insert({ n: 'CR' }, function (err) {
         if (err) return done(err)
@@ -331,18 +337,18 @@ describe('mongo-oplog', function () {
       else if (c > 6) done('Not valid')
     })
 
-    oplog.tail(function() {
+    oplog.tail(function () {
       coll.insert({ c: 1 })
       coll.insert({ c: 2 })
       coll.insert({ c: 3 })
       setTimeout(function () {
-        oplog.stop(function() {
+        oplog.stop(function () {
           coll.insert({ c: 4 })
           coll.insert({ c: 5 })
           coll.insert({ c: 6 })
-          oplog.tail(function() {
+          oplog.tail(function () {
             setTimeout(function () {
-              oplog.stop(function() {
+              oplog.stop(function () {
                 oplog.tail()
               })
             }, 500)
@@ -369,21 +375,21 @@ describe('mongo-oplog', function () {
         }, 100)
       } else if (c > 6) done('Not valid')
     })
-    oplog.tail(function(err, stream) {
+    oplog.tail(function (err, stream) {
       coll.insert({ c: 1 })
       coll.insert({ c: 2 })
       coll.insert({ c: 3 })
 
       // Mimic a timeout error
-      setTimeout(function() {
+      setTimeout(function () {
         stream.emit('error', {
           message: 'cursor killed or timed out',
-          stack: {}
+          stack: {},
         })
         stream.close()
       }, 500)
       stream.on('error', function () {
-        setTimeout(function() {
+        setTimeout(function () {
           coll.insert({ c: 4 })
           coll.insert({ c: 5 })
           coll.insert({ c: 6 })
@@ -404,8 +410,7 @@ describe('mongo-oplog', function () {
 
   after(function (done) {
     db.dropDatabase(function () {
-      db.close(done)
+      dbclient.close(done)
     })
   })
-
 })
